@@ -1,0 +1,61 @@
+{
+  "journeys": [
+    { "id": "water-due-plant", "title": "Water a due plant from Today", "critical": true, "demo": true, "steps": [
+      { "open": "/" },
+      { "expect": { "id": "streak-count" } },
+      { "expect": { "id": "water-p1" } },
+      { "tap": { "id": "water-p1" } },
+      { "expectNot": { "id": "water-p1" } },
+      { "screenshot": "after-water" }
+    ] },
+    { "id": "add-plant", "title": "Add a new plant", "critical": true, "demo": true, "steps": [
+      { "open": "/plants" },
+      { "tap": { "id": "add-plant" } },
+      { "type": { "target": { "id": "plant-name" }, "text": "Aloe Vera" } },
+      { "tap": { "id": "room-kitchen" } },
+      { "tap": { "id": "type-succulent" } },
+      { "expect": { "text": "14 days" } },
+      { "tap": { "id": "interval-plus" } },
+      { "expect": { "text": "15 days" } },
+      { "tap": { "id": "save-plant" } },
+      { "expect": { "id": "plant-detail" } },
+      { "expect": { "text": "Aloe Vera" } }
+    ] },
+    { "id": "plant-history", "title": "Open a plant and see history", "critical": true, "demo": true, "steps": [
+      { "open": "/plants" },
+      { "tap": { "id": "plant-p2" } },
+      { "expect": { "id": "next-due" } },
+      { "expect": { "id": "history-latest" } },
+      { "tap": { "id": "water-now" } },
+      { "expect": { "text": "Watered today" } }
+    ] },
+    { "id": "upcoming-week", "title": "Check the week ahead", "critical": true, "demo": true, "steps": [
+      { "open": "/upcoming" },
+      { "expect": { "id": "upcoming-screen" } },
+      { "expect": { "text": "Today" } },
+      { "expect": { "text": "Basil" } }
+    ] },
+    { "id": "name-required", "title": "Plant name is required", "critical": true, "demo": true, "steps": [
+      { "open": "/plant/new" },
+      { "tap": { "id": "save-plant" } },
+      { "expect": { "id": "name-error" } }
+    ] },
+    { "id": "settings-legal", "title": "Settings shows legal links", "critical": true, "demo": true, "steps": [
+      { "open": "/settings" },
+      { "expect": { "id": "settings-privacy" } },
+      { "expect": { "id": "settings-terms" } },
+      { "expect": { "id": "settings-support" } }
+    ] },
+    { "id": "tabs", "title": "Tab bar navigation works", "critical": true, "demo": true, "steps": [
+      { "open": "/" },
+      { "tap": { "id": "tab-plants" } },
+      { "expect": { "id": "plants-screen" } },
+      { "tap": { "id": "tab-upcoming" } },
+      { "expect": { "id": "upcoming-screen" } },
+      { "tap": { "id": "tab-settings" } },
+      { "expect": { "id": "settings-version" } },
+      { "tap": { "id": "tab-home" } },
+      { "expect": { "id": "today-screen" } }
+    ] }
+  ]
+}

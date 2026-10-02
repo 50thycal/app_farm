@@ -1,0 +1,43 @@
+# Native QA on a macOS runner: Release simulator build, Maestro journeys, native screenshots + app preview.
+name: farm-native-qa
+on:
+  workflow_dispatch:
+    inputs:
+      slug: { description: App slug, required: true }
+      commit: { description: Commit native captures back to the branch, type: boolean, default: true }
+permissions:
+  contents: write
+concurrency: native-qa-${{ inputs.slug }}
+jobs:
+  native:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Tools
+        run: |
+          brew list ffmpeg >/dev/null 2>&1 || brew install ffmpeg
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Native QA
+        run: bash mac/native-qa.sh "${{ inputs.slug }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-qa-${{ inputs.slug }}
+          path: |
+            apps/${{ inputs.slug }}/reports
+            apps/${{ inputs.slug }}/store/raw/native
+            apps/${{ inputs.slug }}/store/screenshots
+            apps/${{ inputs.slug }}/store/previews
+            ~/.maestro/tests
+      - name: Commit native captures
+        if: ${{ inputs.commit }}
+        run: |
+          git config user.name "app-farm-bot"; git config user.email "app-farm-bot@users.noreply.github.com"
+          rm -f "apps/${{ inputs.slug }}/store/raw/native/preview.mov"
+          git add "apps/${{ inputs.slug }}/reports" "apps/${{ inputs.slug }}/store" "apps/${{ inputs.slug }}/pipeline.json"
+          git diff --cached --quiet || (git commit -m "farm(${{ inputs.slug }}): native QA captures" && git push)

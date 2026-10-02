@@ -1,0 +1,20 @@
+appId: com.appfarm.sprout
+name: "shot add"
+---
+- clearState
+- openLink: "sprout://plants?farmDemo=1"
+- waitForAnimationToEnd
+- tapOn: { id: "add-plant" }
+- waitForAnimationToEnd
+- tapOn: { id: "plant-name" }
+- inputText: "Aloe Vera"
+- hideKeyboard
+- waitForAnimationToEnd
+- tapOn: { id: "room-kitchen" }
+- waitForAnimationToEnd
+- tapOn: { id: "type-succulent" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 800
+- takeScreenshot: "../store/raw/native/add"
+- waitForAnimationToEnd

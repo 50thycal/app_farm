@@ -1,0 +1,16 @@
+appId: com.appfarm.sprout
+name: "shot streak"
+---
+- clearState
+- openLink: "sprout://?farmDemo=1"
+- waitForAnimationToEnd
+- tapOn: { id: "water-p1" }
+- waitForAnimationToEnd
+- tapOn: { id: "water-p2" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 400
+- waitForAnimationToEnd:
+    timeout: 800
+- takeScreenshot: "../store/raw/native/streak"
+- waitForAnimationToEnd

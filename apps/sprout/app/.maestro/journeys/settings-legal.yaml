@@ -1,0 +1,18 @@
+appId: com.appfarm.sprout
+name: "Settings shows legal links"
+---
+- clearState
+- openLink: "sprout://settings?farmDemo=1"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "settings-privacy" }
+    timeout: 8000
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "settings-terms" }
+    timeout: 8000
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "settings-support" }
+    timeout: 8000
+- waitForAnimationToEnd

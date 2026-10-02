@@ -1,0 +1,30 @@
+appId: com.appfarm.sprout
+name: "Tab bar navigation works"
+---
+- clearState
+- openLink: "sprout://?farmDemo=1"
+- waitForAnimationToEnd
+- tapOn: { id: "tab-plants" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "plants-screen" }
+    timeout: 8000
+- waitForAnimationToEnd
+- tapOn: { id: "tab-upcoming" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "upcoming-screen" }
+    timeout: 8000
+- waitForAnimationToEnd
+- tapOn: { id: "tab-settings" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "settings-version" }
+    timeout: 8000
+- waitForAnimationToEnd
+- tapOn: { id: "tab-home" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "today-screen" }
+    timeout: 8000
+- waitForAnimationToEnd

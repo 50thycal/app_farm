@@ -1,0 +1,71 @@
+# EAS cloud build (macOS + Xcode on Expo's servers) → upload to TestFlight.
+# Secrets: EXPO_TOKEN, ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY (.p8 contents), APPLE_TEAM_ID
+# Vars (optional): APPLE_TEAM_TYPE (INDIVIDUAL | COMPANY_OR_ORGANIZATION)
+name: farm-ios-release
+on:
+  workflow_dispatch:
+    inputs:
+      slug: { description: App slug (apps/<slug>), required: true }
+      profile: { description: EAS build profile, default: production }
+      submit: { description: Upload to TestFlight after build, type: boolean, default: true }
+permissions:
+  contents: write
+concurrency: release-${{ inputs.slug }}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      SLUG: ${{ inputs.slug }}
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EXPO_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      EXPO_ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      EXPO_APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      EXPO_APPLE_TEAM_TYPE: ${{ vars.APPLE_TEAM_TYPE || 'INDIVIDUAL' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: App Store Connect API key
+        env: { ASC_PRIVATE_KEY: '${{ secrets.ASC_PRIVATE_KEY }}' }
+        run: |
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/asc.p8"
+          echo "EXPO_ASC_API_KEY_PATH=$RUNNER_TEMP/asc.p8" >> "$GITHUB_ENV"
+      - name: Preflight (fast)
+        run: npx tsx farm/cli.ts run "$SLUG" preflight --fast || echo "::warning::preflight has failures — see apps/$SLUG/reports/preflight.md"
+      - name: Point eas.json at the App Store Connect app
+        run: npx tsx farm/cli.ts release-config "$SLUG"
+      - name: Install app deps
+        working-directory: apps/${{ inputs.slug }}/app
+        run: npm ci
+      - name: Link EAS project (first run only)
+        working-directory: apps/${{ inputs.slug }}/app
+        run: |
+          if ! node -e "process.exit(require('./app.json').expo?.extra?.eas?.projectId ? 0 : 1)"; then
+            npx eas-cli@latest init --non-interactive --force
+          fi
+      - name: Inject submit credentials (not committed)
+        working-directory: apps/${{ inputs.slug }}/app
+        run: |
+          cp eas.json "$RUNNER_TEMP/eas.json.bak"
+          node -e "
+            const f='eas.json', j=JSON.parse(require('fs').readFileSync(f));
+            Object.assign(j.submit.production.ios, { ascApiKeyPath: process.env.EXPO_ASC_API_KEY_PATH, ascApiKeyId: process.env.EXPO_ASC_KEY_ID, ascApiKeyIssuerId: process.env.EXPO_ASC_ISSUER_ID });
+            require('fs').writeFileSync(f, JSON.stringify(j, null, 2));"
+      - name: EAS build${{ inputs.submit && ' + submit to TestFlight' || '' }}
+        working-directory: apps/${{ inputs.slug }}/app
+        run: |
+          npx eas-cli@latest build -p ios --profile "${{ inputs.profile }}" --non-interactive --wait --json \
+            ${{ inputs.submit && '--auto-submit' || '' }} > "$RUNNER_TEMP/build.json"
+          cat "$RUNNER_TEMP/build.json"
+          cp "$RUNNER_TEMP/eas.json.bak" eas.json
+      - name: Record build
+        run: |
+          BN=$(node -e "const b=require(process.env.RUNNER_TEMP+'/build.json'); console.log((Array.isArray(b)?b[0]:b).appBuildVersion||'unknown')")
+          npx tsx farm/cli.ts mark-build "$SLUG" "$BN" ${{ inputs.submit && '--testflight' || '' }}
+      - name: Commit project link + build record
+        run: |
+          git config user.name "app-farm-bot"; git config user.email "app-farm-bot@users.noreply.github.com"
+          git add "apps/$SLUG/app/app.json" "apps/$SLUG/app/eas.json" "apps/$SLUG/pipeline.json" "apps/$SLUG/reports" || true
+          git diff --cached --quiet || (git commit -m "farm($SLUG): EAS build recorded" && git push)

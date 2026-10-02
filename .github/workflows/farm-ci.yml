@@ -1,0 +1,23 @@
+name: farm-ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Validate every app's spec + listing
+        run: |
+          for d in apps/*/; do
+            slug=$(basename "$d"); [ -f "$d/pipeline.json" ] || continue
+            [ -f "$d/spec.json" ] && npx tsx farm/cli.ts validate "$slug" spec
+            [ -f "$d/store/listing.json" ] && npx tsx farm/cli.ts validate "$slug" listing
+          done

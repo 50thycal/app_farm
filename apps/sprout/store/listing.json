@@ -1,0 +1,40 @@
+{
+  "locale": "en-US",
+  "name": "Sprout: Plant Care Tracker",
+  "subtitle": "Watering reminders & streaks",
+  "promotionalText": "Never guess when to water again. Sprout shows exactly which plants need you today — and celebrates every day you keep them all happy.",
+  "description": "Sprout tells you exactly which houseplants need water today, so every plant in your home stays healthy.\n\nAdd your plants once and Sprout handles the schedule. Each plant gets its own watering rhythm, based on its type and adjusted to your home, and the Today screen shows only what needs attention — most urgent first. One tap logs a watering.\n\nTODAY AT A GLANCE\n• See every plant that's due or overdue, sorted by urgency\n• Water with one tap and feel the satisfying haptic confirmation\n• A calm “all plants are happy” view when you're done\n\nSCHEDULES THAT FIT EACH PLANT\n• Presets for tropical plants, ferns, succulents, cacti, herbs and flowering plants\n• Fine-tune any plant from every day to every 60 days\n• Organize plants by room\n\nBUILD A CARE STREAK\n• Keep your streak alive by watering everything that's due\n• Track your best streak and build a habit that sticks\n\nPLAN THE WEEK\n• The Upcoming view shows the next seven days of watering, grouped by day\n• Each plant keeps a full watering history\n\nPRIVATE BY DESIGN\nSprout works completely offline. No account, no ads, and your data never leaves your phone.",
+  "keywords": "houseplant,watering,reminder,garden,succulent,cactus,fern,schedule,monstera,greenery,indoor,botany",
+  "supportUrl": "https://app-farm-legal.vercel.app/sprout/support",
+  "marketingUrl": "https://app-farm-legal.vercel.app/sprout",
+  "privacyPolicyUrl": "https://app-farm-legal.vercel.app/sprout/privacy",
+  "copyright": "2026 App Farm",
+  "primaryCategory": "LIFESTYLE",
+  "secondaryCategory": "PRODUCTIVITY",
+  "review": {
+    "notes": "Sprout is a fully offline houseplant watering tracker. No account, no network access, no purchases.\n\nHow to test:\n1. On first launch the app is empty — tap 'Add your first plant', enter a name, pick a room and plant type (the watering interval fills in automatically), then tap Add plant.\n2. The Today tab lists plants that are due; tap Water to log a watering. When nothing is due the care streak advances.\n3. My Plants lists every plant by room; tap one to see its next watering date and history, water it, edit it or delete it.\n4. Upcoming shows the next 7 days of watering.\n5. Settings links to support, privacy policy and terms.",
+    "demoAccountRequired": false
+  },
+  "ageRating": {
+    "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+    "contests": "NONE",
+    "gamblingSimulated": "NONE",
+    "horrorOrFearThemes": "NONE",
+    "matureOrSuggestiveThemes": "NONE",
+    "medicalOrTreatmentInformation": "NONE",
+    "profanityOrCrudeHumor": "NONE",
+    "sexualContentGraphicAndNudity": "NONE",
+    "sexualContentOrNudity": "NONE",
+    "violenceCartoonOrFantasy": "NONE",
+    "violenceRealistic": "NONE",
+    "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+    "gambling": false,
+    "unrestrictedWebAccess": false
+  },
+  "brand": {
+    "background": "#E3F4E8",
+    "backgroundEnd": "#BFE6CB",
+    "text": "#12321F",
+    "accent": "#1F8A4C"
+  }
+}

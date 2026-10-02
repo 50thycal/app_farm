@@ -1,0 +1,40 @@
+# App Store Connect API operations. Secrets: ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY, plus owner contact
+# (FARM_OWNER_EMAIL / FARM_OWNER_PHONE) if you keep them out of farm.config.json.
+name: farm-asc
+on:
+  workflow_dispatch:
+    inputs:
+      slug: { description: App slug, required: true }
+      action:
+        description: Operation
+        type: choice
+        options: [status, bundle-id, listing, price, attach, submit]
+        default: status
+      confirm: { description: 'Type SUBMIT to submit for App Review (action=submit only)', default: '' }
+      dry_run: { description: Print mutating requests instead of sending, type: boolean, default: false }
+permissions:
+  contents: write
+concurrency: asc-${{ inputs.slug }}
+jobs:
+  asc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      FARM_OWNER_EMAIL: ${{ secrets.FARM_OWNER_EMAIL }}
+      FARM_OWNER_PHONE: ${{ secrets.FARM_OWNER_PHONE }}
+      FARM_DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx tsx farm/cli.ts asc "${{ inputs.action }}" "${{ inputs.slug }}" --confirm "${{ inputs.confirm }}"
+      - name: Commit pipeline state
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "app-farm-bot"; git config user.email "app-farm-bot@users.noreply.github.com"
+          git add "apps/${{ inputs.slug }}/pipeline.json"
+          git diff --cached --quiet || (git commit -m "farm(${{ inputs.slug }}): asc ${{ inputs.action }}" && git push)

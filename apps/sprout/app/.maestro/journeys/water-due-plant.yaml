@@ -1,0 +1,20 @@
+appId: com.appfarm.sprout
+name: "Water a due plant from Today"
+---
+- clearState
+- openLink: "sprout://?farmDemo=1"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "streak-count" }
+    timeout: 8000
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "water-p1" }
+    timeout: 8000
+- waitForAnimationToEnd
+- tapOn: { id: "water-p1" }
+- waitForAnimationToEnd
+- assertNotVisible: { id: "water-p1" }
+- waitForAnimationToEnd
+- takeScreenshot: "after-water"
+- waitForAnimationToEnd

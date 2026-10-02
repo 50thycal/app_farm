@@ -1,0 +1,12 @@
+appId: com.appfarm.sprout
+name: "Plant name is required"
+---
+- clearState
+- openLink: "sprout://plant/new?farmDemo=1"
+- waitForAnimationToEnd
+- tapOn: { id: "save-plant" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "name-error" }
+    timeout: 8000
+- waitForAnimationToEnd

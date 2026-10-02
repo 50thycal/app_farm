@@ -1,0 +1,36 @@
+# Deploys every app's privacy policy / terms / support / marketing page as one static site.
+# Vercel (default): secrets VERCEL_TOKEN (+ optional VERCEL_ORG_ID / VERCEL_PROJECT_ID).
+# GitHub Pages: set repository variable LEGAL_TARGET=pages and enable Pages (Source: GitHub Actions).
+name: farm-legal-site
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['apps/*/site/**']
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx tsx farm/cli.ts legal-dist "$RUNNER_TEMP/app-farm-legal"
+      - name: Deploy to Vercel
+        if: ${{ vars.LEGAL_TARGET != 'pages' }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ${{ runner.temp }}/app-farm-legal
+        run: npx vercel@latest deploy --prod --yes --token "$VERCEL_TOKEN"
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ vars.LEGAL_TARGET == 'pages' }}
+        with: { path: '${{ runner.temp }}/app-farm-legal' }
+      - uses: actions/deploy-pages@v4
+        if: ${{ vars.LEGAL_TARGET == 'pages' }}

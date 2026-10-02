@@ -1,0 +1,28 @@
+{
+  "name": "app-farm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Idea -> App Store pipeline. Orchestrates agent stages + deterministic tooling to take a rough app idea to a submitted iOS app.",
+  "type": "module",
+  "bin": {
+    "farm": "farm/cli.ts"
+  },
+  "scripts": {
+    "farm": "tsx farm/cli.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "tsx --test farm/*.test.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "playwright-core": "^1.63.0",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.5"
+  }
+}

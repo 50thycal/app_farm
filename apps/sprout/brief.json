@@ -1,0 +1,27 @@
+{
+  "workingName": "Sprout: Plant Care",
+  "nameAlternatives": ["Leaflog", "Thirsty Plants", "Greenstreak"],
+  "oneLiner": "Know exactly which houseplants need water today, and keep every one of them alive.",
+  "problem": "Plant owners forget watering schedules, especially once they have more than a few plants with different needs. Plants die from both neglect and overwatering, and generic reminder apps don't know that a cactus and a fern need different care.",
+  "audience": "Urban plant owners with 3–30 houseplants, mostly 20–40 year olds who are new to plant care and want simple guidance.",
+  "coreLoop": "Open the app, see the 'Today' list of plants that are due or overdue for water, tap each plant as you water it (with a satisfying haptic + streak bump), and glance at what's coming up in the next few days.",
+  "differentiator": "Per-plant watering intervals with sensible presets by plant type, a care streak that rewards consistency, and a zero-setup, fully offline experience — no account, no ads.",
+  "mvpFeatures": [
+    "Add plants with name, room, plant type preset and custom watering interval",
+    "Today view: plants due/overdue sorted by urgency with one-tap 'Watered'",
+    "Plant detail with watering history and next due date; edit or delete plant",
+    "Care streak: consecutive days with all due plants watered",
+    "Upcoming view: next 7 days of watering grouped by day"
+  ],
+  "laterFeatures": ["Local notification reminders", "Photo journal per plant", "Home screen widget", "iCloud sync"],
+  "category": "LIFESTYLE",
+  "monetization": "free",
+  "needsBackend": false,
+  "needsAccounts": false,
+  "source": { "type": "idea", "value": "an app that helps people keep their houseplants alive - track each plant, when to water it, and keep a streak" },
+  "risks": [
+    { "risk": "Too simple — could be seen as minimum functionality", "guideline": "4.2", "mitigation": "Ship five real features, polished native UI, haptics, history and streak logic, offline-first" },
+    { "risk": "Empty first launch looks broken to reviewers", "guideline": "2.1", "mitigation": "Friendly empty state with one-tap 'Add your first plant' and quick-add presets" }
+  ],
+  "openQuestions": ["Final app name and trademark search", "Whether to add reminders (notifications) in 1.1"]
+}

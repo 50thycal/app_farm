@@ -1,0 +1,95 @@
+appId: com.appfarm.sprout
+name: "app preview"
+---
+- clearState
+- openLink: "sprout://?farmDemo=1"
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- waitForAnimationToEnd:
+    timeout: 1200
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "water-p1" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "water-p2" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "water-p3" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- waitForAnimationToEnd:
+    timeout: 800
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "tab-plants" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- scroll
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- swipe:
+    direction: DOWN
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "plant-p5" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- scroll
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- swipe:
+    start: 2%, 50%
+    end: 85%, 50%
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "add-plant" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "plant-name" }
+- inputText: "Aloe Vera"
+- hideKeyboard
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "type-succulent" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "save-plant" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- waitForAnimationToEnd:
+    timeout: 900
+- waitForAnimationToEnd:
+    timeout: 900
+- swipe:
+    start: 2%, 50%
+    end: 85%, 50%
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- waitForAnimationToEnd:
+    timeout: 600
+- waitForAnimationToEnd:
+    timeout: 900
+- tapOn: { id: "tab-upcoming" }
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900
+- scroll
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 900

@@ -1,0 +1,18 @@
+node_modules/
+.DS_Store
+*.p8
+.env
+.env.*
+!.env.example
+.legal-dist/
+apps/*/app/node_modules/
+apps/*/app/dist-*/
+apps/*/app/ios/
+apps/*/app/android/
+apps/*/app/.expo/
+apps/*/.farm-tmp/
+# regenerated intermediates
+apps/*/store/raw/web/
+apps/*/store/fastlane/screenshots/
+apps/*/store/raw/native/preview.mov
+apps/*/store/fastlane/metadata/review_information/

@@ -1,0 +1,18 @@
+appId: com.appfarm.sprout
+name: "Check the week ahead"
+---
+- clearState
+- openLink: "sprout://upcoming?farmDemo=1"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "upcoming-screen" }
+    timeout: 8000
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { text: ".*Today.*" }
+    timeout: 8000
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { text: ".*Basil.*" }
+    timeout: 8000
+- waitForAnimationToEnd

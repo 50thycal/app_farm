@@ -1,0 +1,254 @@
+{
+  "slug": "sprout",
+  "createdAt": "2026-10-02T02:34:20.617Z",
+  "source": {
+    "type": "idea",
+    "value": "an app that helps people keep their houseplants alive - track each plant, when to water it, and keep a streak"
+  },
+  "stages": {
+    "intake": {
+      "status": "done",
+      "updatedAt": "2026-10-02T02:34:34.788Z"
+    },
+    "spec": {
+      "status": "done",
+      "updatedAt": "2026-10-02T02:35:07.492Z"
+    },
+    "scaffold": {
+      "status": "done",
+      "updatedAt": "2026-10-02T02:45:17.235Z"
+    },
+    "build": {
+      "status": "done",
+      "updatedAt": "2026-10-02T02:49:24.888Z"
+    },
+    "playtest": {
+      "status": "done",
+      "updatedAt": "2026-10-02T02:50:36.065Z"
+    },
+    "listing": {
+      "status": "done",
+      "updatedAt": "2026-10-02T02:50:37.294Z"
+    },
+    "assets": {
+      "status": "done",
+      "updatedAt": "2026-10-02T02:51:47.426Z"
+    },
+    "legal": {
+      "status": "done",
+      "updatedAt": "2026-10-02T02:51:48.686Z"
+    },
+    "preflight": {
+      "status": "done",
+      "updatedAt": "2026-10-02T02:52:06.646Z",
+      "note": "8 warnings"
+    },
+    "native-qa": {
+      "status": "pending",
+      "updatedAt": "2026-10-02T02:34:20.617Z"
+    },
+    "release": {
+      "status": "pending",
+      "updatedAt": "2026-10-02T02:34:20.617Z"
+    },
+    "store": {
+      "status": "pending",
+      "updatedAt": "2026-10-02T02:34:20.617Z"
+    },
+    "submit": {
+      "status": "pending",
+      "updatedAt": "2026-10-02T02:34:20.617Z"
+    }
+  },
+  "release": {},
+  "history": [
+    {
+      "at": "2026-10-02T02:34:34.789Z",
+      "stage": "intake",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:35:07.492Z",
+      "stage": "spec",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:35:10.706Z",
+      "stage": "scaffold",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:35:52.123Z",
+      "stage": "scaffold",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:38:58.051Z",
+      "stage": "build",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:39:01.272Z",
+      "stage": "playtest",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:40:12.005Z",
+      "stage": "playtest",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:41:05.094Z",
+      "stage": "listing",
+      "event": "failed",
+      "detail": "listing.schema.0, shots.schema.0, listing.icon-svg"
+    },
+    {
+      "at": "2026-10-02T02:41:31.885Z",
+      "stage": "listing",
+      "event": "done",
+      "detail": "1 warnings"
+    },
+    {
+      "at": "2026-10-02T02:41:33.056Z",
+      "stage": "listing",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:41:33.090Z",
+      "stage": "listing",
+      "event": "done",
+      "detail": "1 warnings"
+    },
+    {
+      "at": "2026-10-02T02:41:37.445Z",
+      "stage": "assets",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:41:37.469Z",
+      "stage": "assets",
+      "event": "failed",
+      "detail": "listing.json invalid:\n  keywords: Too big: expected string to have <=100 characters"
+    },
+    {
+      "at": "2026-10-02T02:41:41.519Z",
+      "stage": "assets",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:41:41.583Z",
+      "stage": "assets",
+      "event": "failed",
+      "detail": "Input image exceeds pixel limit"
+    },
+    {
+      "at": "2026-10-02T02:41:48.347Z",
+      "stage": "assets",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:42:56.445Z",
+      "stage": "assets",
+      "event": "failed",
+      "detail": "step 17 {\"tap\":{\"id\":\"tab-upcoming\"}}: locator.waitFor: Timeout 8000ms exceeded."
+    },
+    {
+      "at": "2026-10-02T02:43:09.419Z",
+      "stage": "assets",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:44:29.122Z",
+      "stage": "assets",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:44:41.903Z",
+      "stage": "legal",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:44:41.926Z",
+      "stage": "legal",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:44:43.224Z",
+      "stage": "preflight",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:45:00.888Z",
+      "stage": "preflight",
+      "event": "failed",
+      "detail": "playtest.fresh"
+    },
+    {
+      "at": "2026-10-02T02:45:17.220Z",
+      "stage": "scaffold",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:45:17.235Z",
+      "stage": "scaffold",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:49:24.889Z",
+      "stage": "build",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:49:26.024Z",
+      "stage": "playtest",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:50:36.065Z",
+      "stage": "playtest",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:50:37.254Z",
+      "stage": "listing",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:50:37.294Z",
+      "stage": "listing",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:50:38.564Z",
+      "stage": "assets",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:51:47.426Z",
+      "stage": "assets",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:51:48.659Z",
+      "stage": "legal",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:51:48.686Z",
+      "stage": "legal",
+      "event": "done"
+    },
+    {
+      "at": "2026-10-02T02:51:49.938Z",
+      "stage": "preflight",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-10-02T02:52:06.646Z",
+      "stage": "preflight",
+      "event": "done",
+      "detail": "8 warnings"
+    }
+  ]
+}

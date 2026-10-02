@@ -1,0 +1,22 @@
+appId: com.appfarm.sprout
+name: "Open a plant and see history"
+---
+- clearState
+- openLink: "sprout://plants?farmDemo=1"
+- waitForAnimationToEnd
+- tapOn: { id: "plant-p2" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "next-due" }
+    timeout: 8000
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "history-latest" }
+    timeout: 8000
+- waitForAnimationToEnd
+- tapOn: { id: "water-now" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { text: ".*Watered today.*" }
+    timeout: 8000
+- waitForAnimationToEnd

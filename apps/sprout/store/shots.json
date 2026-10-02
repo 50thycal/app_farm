@@ -1,0 +1,220 @@
+{
+  "scenes": [
+    {
+      "id": "today",
+      "caption": "Know what to *water today*",
+      "subcaption": "Every plant that needs you, most urgent first",
+      "demo": true,
+      "steps": [
+        {
+          "open": "/"
+        },
+        {
+          "expect": {
+            "id": "water-p1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "streak",
+      "caption": "One tap. *Done.*",
+      "subcaption": "Log a watering and keep your care streak growing",
+      "demo": true,
+      "steps": [
+        {
+          "open": "/"
+        },
+        {
+          "tap": {
+            "id": "water-p1"
+          }
+        },
+        {
+          "tap": {
+            "id": "water-p2"
+          }
+        },
+        {
+          "wait": 400
+        }
+      ]
+    },
+    {
+      "id": "plants",
+      "caption": "All your plants, *room by room*",
+      "demo": true,
+      "steps": [
+        {
+          "open": "/plants"
+        },
+        {
+          "expect": {
+            "id": "plant-p4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "detail",
+      "caption": "A *schedule* for every plant",
+      "subcaption": "Next watering and full history at a glance",
+      "demo": true,
+      "steps": [
+        {
+          "open": "/plants"
+        },
+        {
+          "tap": {
+            "id": "plant-p5"
+          }
+        },
+        {
+          "expect": {
+            "id": "history-latest"
+          }
+        }
+      ]
+    },
+    {
+      "id": "upcoming",
+      "caption": "Plan the *week ahead*",
+      "demo": true,
+      "steps": [
+        {
+          "open": "/upcoming"
+        },
+        {
+          "expect": {
+            "text": "Basil"
+          }
+        }
+      ]
+    },
+    {
+      "id": "add",
+      "caption": "Smart presets, *zero guesswork*",
+      "subcaption": "Pick a type and Sprout sets the schedule",
+      "demo": true,
+      "steps": [
+        {
+          "open": "/plants"
+        },
+        {
+          "tap": {
+            "id": "add-plant"
+          }
+        },
+        {
+          "type": {
+            "target": {
+              "id": "plant-name"
+            },
+            "text": "Aloe Vera"
+          }
+        },
+        {
+          "tap": {
+            "id": "room-kitchen"
+          }
+        },
+        {
+          "tap": {
+            "id": "type-succulent"
+          }
+        }
+      ]
+    }
+  ],
+  "preview": {
+    "stepDelayMs": 1250,
+    "steps": [
+      {
+        "open": "/"
+      },
+      {
+        "wait": 1200
+      },
+      {
+        "tap": {
+          "id": "water-p1"
+        }
+      },
+      {
+        "tap": {
+          "id": "water-p2"
+        }
+      },
+      {
+        "tap": {
+          "id": "water-p3"
+        }
+      },
+      {
+        "wait": 800
+      },
+      {
+        "tap": {
+          "id": "tab-plants"
+        }
+      },
+      {
+        "scroll": "down"
+      },
+      {
+        "scroll": "up"
+      },
+      {
+        "tap": {
+          "id": "plant-p5"
+        }
+      },
+      {
+        "scroll": "down"
+      },
+      {
+        "back": true
+      },
+      {
+        "tap": {
+          "id": "add-plant"
+        }
+      },
+      {
+        "type": {
+          "target": {
+            "id": "plant-name"
+          },
+          "text": "Aloe Vera"
+        }
+      },
+      {
+        "tap": {
+          "id": "type-succulent"
+        }
+      },
+      {
+        "tap": {
+          "id": "save-plant"
+        }
+      },
+      {
+        "wait": 900
+      },
+      {
+        "back": true
+      },
+      {
+        "wait": 600
+      },
+      {
+        "tap": {
+          "id": "tab-upcoming"
+        }
+      },
+      {
+        "scroll": "down"
+      }
+    ]
+  }
+}

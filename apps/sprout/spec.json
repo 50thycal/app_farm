@@ -1,0 +1,60 @@
+{
+  "app": {
+    "name": "Sprout",
+    "subtitle": "Plant watering made simple",
+    "slug": "sprout",
+    "bundleId": "com.appfarm.sprout",
+    "scheme": "sprout",
+    "version": "1.0.0",
+    "primaryCategory": "LIFESTYLE",
+    "secondaryCategory": "PRODUCTIVITY",
+    "supportsTablet": false,
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "locale": "en-US"
+  },
+  "pitch": {
+    "oneLiner": "Know exactly which houseplants need water today, and keep every one of them alive.",
+    "audience": "Houseplant owners with 3–30 plants who want simple, reliable care guidance.",
+    "coreLoop": "Open Today, water what's due with one tap, keep the streak alive, glance at the week ahead.",
+    "differentiator": "Per-plant intervals with type presets, a care streak, fully offline with zero setup."
+  },
+  "features": [
+    { "id": "add-plant", "title": "Add & edit plants", "description": "Add a plant with a name, room and plant type. The type preset fills in a sensible watering interval that you can adjust from 1 to 60 days.", "priority": "mvp",
+      "acceptance": ["Name is required", "Choosing a preset sets the interval", "Interval adjustable with stepper", "Saved plant appears in My Plants and Today/Upcoming", "Plants can be edited and deleted"] },
+    { "id": "today", "title": "Today list", "description": "See every plant that is due or overdue, most urgent first, and mark it watered with one tap.", "priority": "mvp",
+      "acceptance": ["Overdue plants show how many days late", "Tapping Water logs a watering, plays a haptic and removes it from the list", "Empty state celebrates when everything is watered"] },
+    { "id": "history", "title": "Plant detail & history", "description": "Each plant shows its next due date, interval, room, and a history of past waterings.", "priority": "mvp",
+      "acceptance": ["Shows next due date", "Lists past waterings newest first", "Water now button logs a watering"] },
+    { "id": "streak", "title": "Care streak", "description": "A streak counts consecutive days on which every due plant was watered.", "priority": "mvp",
+      "acceptance": ["Streak increments when all due plants are watered for the day", "Streak resets after a day with missed plants", "Streak shown on Today"] },
+    { "id": "upcoming", "title": "Upcoming week", "description": "The next 7 days of watering, grouped by day.", "priority": "mvp",
+      "acceptance": ["Groups plants by due day for the next 7 days", "Days with nothing due are omitted"] },
+    { "id": "reminders", "title": "Watering reminders", "description": "A daily local notification when plants are due.", "priority": "later", "acceptance": ["Opt-in"] }
+  ],
+  "screens": [
+    { "id": "today", "route": "/", "file": "app/(tabs)/index.tsx", "title": "Today", "purpose": "Plants due today + streak", "features": ["today", "streak"], "tab": true },
+    { "id": "plants", "route": "/plants", "file": "app/(tabs)/plants.tsx", "title": "My Plants", "purpose": "All plants, add new", "features": ["add-plant"], "tab": true },
+    { "id": "upcoming", "route": "/upcoming", "file": "app/(tabs)/upcoming.tsx", "title": "Upcoming", "purpose": "Next 7 days", "features": ["upcoming"], "tab": true },
+    { "id": "settings", "route": "/settings", "file": "app/(tabs)/settings.tsx", "title": "Settings", "purpose": "Support, legal, version", "features": [], "tab": true },
+    { "id": "plant-detail", "route": "/plant/[id]", "file": "app/plant/[id].tsx", "title": "Plant", "purpose": "Detail + history", "features": ["history"], "tab": false },
+    { "id": "plant-form", "route": "/plant/new", "file": "app/plant/new.tsx", "title": "Add Plant", "purpose": "Create or edit a plant", "features": ["add-plant"], "tab": false }
+  ],
+  "journeys": [
+    { "id": "water-due-plant", "title": "Water a due plant from Today", "steps": ["Open Today", "Tap Water on the first due plant", "Plant leaves the due list and streak is visible"] },
+    { "id": "add-plant", "title": "Add a new plant", "steps": ["Open My Plants", "Tap Add", "Enter a name, pick Succulent", "Save", "Plant appears in the list"] },
+    { "id": "plant-history", "title": "Open a plant and see history", "steps": ["Open My Plants", "Tap a plant", "See next due date and watering history"] },
+    { "id": "upcoming-week", "title": "Check the week ahead", "steps": ["Open Upcoming", "See plants grouped by day"] }
+  ],
+  "data": { "storage": "local", "backend": null, "entities": [
+    { "name": "Plant", "fields": ["id", "name", "room", "type", "intervalDays", "createdAt", "waterings: ISO date[]"] },
+    { "name": "Streak", "fields": ["current", "best", "lastCompletedDay"] }
+  ] },
+  "accounts": { "required": false, "methods": [], "deletionInApp": false },
+  "monetization": { "model": "free", "products": [], "restorePurchases": false },
+  "permissions": [],
+  "privacy": { "collectsData": false, "tracking": false, "thirdPartySdks": [], "dataTypes": [] },
+  "content": { "userGenerated": false, "externalLinks": false, "regulated": ["none"] },
+  "design": { "primaryColor": "#2F9E5B", "backgroundColor": "#F6FAF5", "textColor": "#14281D", "tone": "Calm, warm and encouraging; botanical greens, rounded cards" },
+  "nativeValue": ["Haptic feedback on watering and streak milestones", "Fully offline local storage — works with no connection", "Native tab navigation, SF Symbols and dark mode", "Fast one-tap daily routine designed for the home screen habit"]
+}

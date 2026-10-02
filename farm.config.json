@@ -1,0 +1,27 @@
+{
+  "owner": {
+    "legalName": "",
+    "displayName": "",
+    "firstName": "",
+    "lastName": "",
+    "email": "",
+    "phone": "",
+    "country": "US",
+    "website": ""
+  },
+  "apple": {
+    "teamId": "",
+    "teamType": "INDIVIDUAL",
+    "bundleIdPrefix": "com.appfarm"
+  },
+  "legal": {
+    "baseUrl": "https://app-farm-legal.vercel.app"
+  },
+  "expo": {
+    "owner": ""
+  },
+  "defaults": {
+    "sdk": "latest",
+    "supportsTablet": false
+  }
+}

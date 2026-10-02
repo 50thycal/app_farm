@@ -1,0 +1,14 @@
+appId: com.appfarm.sprout
+name: "shot upcoming"
+---
+- clearState
+- openLink: "sprout://upcoming?farmDemo=1"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { text: ".*Basil.*" }
+    timeout: 8000
+- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 800
+- takeScreenshot: "../store/raw/native/upcoming"
+- waitForAnimationToEnd

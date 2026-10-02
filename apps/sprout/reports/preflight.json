@@ -1,0 +1,397 @@
+{
+  "at": "2026-10-02T02:52:06.642Z",
+  "ok": true,
+  "checks": [
+    {
+      "id": "input.spec",
+      "level": "pass",
+      "msg": "spec valid"
+    },
+    {
+      "id": "input.listing",
+      "level": "pass",
+      "msg": "listing valid"
+    },
+    {
+      "id": "input.shots",
+      "level": "pass",
+      "msg": "shots valid"
+    },
+    {
+      "id": "input.journeys",
+      "level": "pass",
+      "msg": "journeys valid"
+    },
+    {
+      "id": "spec.min-functionality",
+      "level": "pass",
+      "msg": "5 MVP features",
+      "ref": "4.2"
+    },
+    {
+      "id": "spec.native-value",
+      "level": "pass",
+      "msg": "Native value articulated",
+      "ref": "4.2"
+    },
+    {
+      "id": "spec.tabs",
+      "level": "pass",
+      "msg": "4 tabs",
+      "ref": "HIG"
+    },
+    {
+      "id": "spec.settings-screen",
+      "level": "pass",
+      "msg": "Settings/About screen present (privacy policy link, support, deletion)",
+      "ref": "5.1.1(i)"
+    },
+    {
+      "id": "config.bundle-id",
+      "level": "pass",
+      "msg": "bundleIdentifier com.appfarm.sprout"
+    },
+    {
+      "id": "config.bundle-id.real",
+      "level": "pass",
+      "msg": "bundle id is real"
+    },
+    {
+      "id": "config.version",
+      "level": "pass",
+      "msg": "version 1.0.0"
+    },
+    {
+      "id": "config.name",
+      "level": "pass",
+      "msg": "display name \"Sprout\""
+    },
+    {
+      "id": "config.name.len",
+      "level": "pass",
+      "msg": "home-screen name ≤ 30"
+    },
+    {
+      "id": "config.encryption",
+      "level": "pass",
+      "msg": "Export compliance declared (ITSAppUsesNonExemptEncryption=false)",
+      "ref": "Export compliance"
+    },
+    {
+      "id": "config.tablet",
+      "level": "pass",
+      "msg": "supportsTablet=false"
+    },
+    {
+      "id": "config.privacy-manifest",
+      "level": "pass",
+      "msg": "Privacy manifest configured",
+      "ref": "Privacy manifest (ITMS-91053)"
+    },
+    {
+      "id": "config.scheme",
+      "level": "pass",
+      "msg": "scheme sprout"
+    },
+    {
+      "id": "icon.store.size",
+      "level": "pass",
+      "msg": "store icon 1024²"
+    },
+    {
+      "id": "icon.store.alpha",
+      "level": "pass",
+      "msg": "store icon opaque",
+      "ref": "ITMS-90717"
+    },
+    {
+      "id": "icon.app.size",
+      "level": "pass",
+      "msg": "app icon 1024²"
+    },
+    {
+      "id": "icon.app.alpha",
+      "level": "pass",
+      "msg": "app icon opaque",
+      "ref": "ITMS-90717"
+    },
+    {
+      "id": "code.placeholder",
+      "level": "pass",
+      "msg": "No placeholder content",
+      "ref": "2.1 / 2.3.3"
+    },
+    {
+      "id": "code.screen.today",
+      "level": "pass",
+      "msg": "app/(tabs)/index.tsx exists"
+    },
+    {
+      "id": "code.screen.plants",
+      "level": "pass",
+      "msg": "app/(tabs)/plants.tsx exists"
+    },
+    {
+      "id": "code.screen.upcoming",
+      "level": "pass",
+      "msg": "app/(tabs)/upcoming.tsx exists"
+    },
+    {
+      "id": "code.screen.settings",
+      "level": "pass",
+      "msg": "app/(tabs)/settings.tsx exists"
+    },
+    {
+      "id": "code.screen.plant-detail",
+      "level": "pass",
+      "msg": "app/plant/[id].tsx exists"
+    },
+    {
+      "id": "code.screen.plant-form",
+      "level": "pass",
+      "msg": "app/plant/new.tsx exists"
+    },
+    {
+      "id": "code.privacy-link",
+      "level": "pass",
+      "msg": "In-app privacy policy link",
+      "ref": "5.1.1(i)"
+    },
+    {
+      "id": "code.typecheck",
+      "level": "pass",
+      "msg": "TypeScript clean"
+    },
+    {
+      "id": "code.ios-bundle",
+      "level": "pass",
+      "msg": "iOS JS bundle builds (Hermes)"
+    },
+    {
+      "id": "playtest.ok",
+      "level": "pass",
+      "msg": "Playtest passed",
+      "ref": "2.1"
+    },
+    {
+      "id": "playtest.fresh",
+      "level": "pass",
+      "msg": "Playtest is newer than the code"
+    },
+    {
+      "id": "listing.keywords.bytes",
+      "level": "pass",
+      "msg": "keywords 98/100 bytes"
+    },
+    {
+      "id": "listing.name.match",
+      "level": "pass",
+      "msg": "Store name matches the app name",
+      "ref": "2.3.8"
+    },
+    {
+      "id": "listing.subtitle",
+      "level": "pass",
+      "msg": "Subtitle adds information"
+    },
+    {
+      "id": "listing.review-notes",
+      "level": "pass",
+      "msg": "Review notes explain how to test",
+      "ref": "2.1"
+    },
+    {
+      "id": "listing.copyright",
+      "level": "pass",
+      "msg": "Copyright year current"
+    },
+    {
+      "id": "listing.supportUrl.https",
+      "level": "pass",
+      "msg": "supportUrl is https"
+    },
+    {
+      "id": "listing.privacyPolicyUrl.https",
+      "level": "pass",
+      "msg": "privacyPolicyUrl is https"
+    },
+    {
+      "id": "listing.marketingUrl.https",
+      "level": "pass",
+      "msg": "marketingUrl is https"
+    },
+    {
+      "id": "listing.privacy-url",
+      "level": "pass",
+      "msg": "Privacy URL matches the in-app link",
+      "ref": "5.1.1(i)"
+    },
+    {
+      "id": "listing.category",
+      "level": "pass",
+      "msg": "Category matches spec"
+    },
+    {
+      "id": "shots.iphone-6.9.count",
+      "level": "pass",
+      "msg": "iphone-6.9: 6 screenshots"
+    },
+    {
+      "id": "shots.iphone-6.9.01-today.png.size",
+      "level": "pass",
+      "msg": "01-today.png 1320×2868"
+    },
+    {
+      "id": "shots.iphone-6.9.01-today.png.alpha",
+      "level": "pass",
+      "msg": "01-today.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.02-streak.png.size",
+      "level": "pass",
+      "msg": "02-streak.png 1320×2868"
+    },
+    {
+      "id": "shots.iphone-6.9.02-streak.png.alpha",
+      "level": "pass",
+      "msg": "02-streak.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.03-plants.png.size",
+      "level": "pass",
+      "msg": "03-plants.png 1320×2868"
+    },
+    {
+      "id": "shots.iphone-6.9.03-plants.png.alpha",
+      "level": "pass",
+      "msg": "03-plants.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.04-detail.png.size",
+      "level": "pass",
+      "msg": "04-detail.png 1320×2868"
+    },
+    {
+      "id": "shots.iphone-6.9.04-detail.png.alpha",
+      "level": "pass",
+      "msg": "04-detail.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.05-upcoming.png.size",
+      "level": "pass",
+      "msg": "05-upcoming.png 1320×2868"
+    },
+    {
+      "id": "shots.iphone-6.9.05-upcoming.png.alpha",
+      "level": "pass",
+      "msg": "05-upcoming.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.06-add.png.size",
+      "level": "pass",
+      "msg": "06-add.png 1320×2868"
+    },
+    {
+      "id": "shots.iphone-6.9.06-add.png.alpha",
+      "level": "pass",
+      "msg": "06-add.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.source",
+      "level": "warn",
+      "msg": "Screenshots were captured from the web build. Recapture on the iOS Simulator before submitting (farm-native-qa workflow or mac/native-qa.sh) so they show true native rendering",
+      "ref": "2.3.3"
+    },
+    {
+      "id": "preview.duration",
+      "level": "pass",
+      "msg": "preview 29.5s"
+    },
+    {
+      "id": "preview.size",
+      "level": "pass",
+      "msg": "preview 886×1920"
+    },
+    {
+      "id": "preview.fps",
+      "level": "pass",
+      "msg": "preview 30 fps"
+    },
+    {
+      "id": "preview.codec",
+      "level": "pass",
+      "msg": "preview H.264"
+    },
+    {
+      "id": "preview.audio",
+      "level": "pass",
+      "msg": "preview has audio track"
+    },
+    {
+      "id": "preview.bytes",
+      "level": "pass",
+      "msg": "preview < 500MB"
+    },
+    {
+      "id": "privacy.label",
+      "level": "pass",
+      "msg": "App Privacy answers match spec",
+      "ref": "5.1.2"
+    },
+    {
+      "id": "site.privacy.html",
+      "level": "pass",
+      "msg": "site/privacy.html"
+    },
+    {
+      "id": "site.terms.html",
+      "level": "pass",
+      "msg": "site/terms.html"
+    },
+    {
+      "id": "site.support.html",
+      "level": "pass",
+      "msg": "site/support.html"
+    },
+    {
+      "id": "site.index.html",
+      "level": "pass",
+      "msg": "site/index.html"
+    },
+    {
+      "id": "owner.legalName",
+      "level": "warn",
+      "msg": "farm.config.json owner.legalName empty (needed for App Review contact)"
+    },
+    {
+      "id": "owner.firstName",
+      "level": "warn",
+      "msg": "farm.config.json owner.firstName empty (needed for App Review contact)"
+    },
+    {
+      "id": "owner.lastName",
+      "level": "warn",
+      "msg": "farm.config.json owner.lastName empty (needed for App Review contact)"
+    },
+    {
+      "id": "owner.email",
+      "level": "warn",
+      "msg": "farm.config.json owner.email empty (needed for App Review contact)"
+    },
+    {
+      "id": "owner.phone",
+      "level": "warn",
+      "msg": "farm.config.json owner.phone empty (needed for App Review contact)"
+    },
+    {
+      "id": "apple.team",
+      "level": "warn",
+      "msg": "farm.config.json apple.teamId empty"
+    },
+    {
+      "id": "release.asc-app",
+      "level": "warn",
+      "msg": "No App Store Connect app id yet — create the app record (docs/HUMAN_STEPS.md) then `farm set <slug> ascAppId <id>`"
+    }
+  ]
+}

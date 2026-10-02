@@ -1,0 +1,36 @@
+appId: com.appfarm.sprout
+name: "Add a new plant"
+---
+- clearState
+- openLink: "sprout://plants?farmDemo=1"
+- waitForAnimationToEnd
+- tapOn: { id: "add-plant" }
+- waitForAnimationToEnd
+- tapOn: { id: "plant-name" }
+- inputText: "Aloe Vera"
+- hideKeyboard
+- waitForAnimationToEnd
+- tapOn: { id: "room-kitchen" }
+- waitForAnimationToEnd
+- tapOn: { id: "type-succulent" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { text: ".*14 days.*" }
+    timeout: 8000
+- waitForAnimationToEnd
+- tapOn: { id: "interval-plus" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { text: ".*15 days.*" }
+    timeout: 8000
+- waitForAnimationToEnd
+- tapOn: { id: "save-plant" }
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "plant-detail" }
+    timeout: 8000
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { text: ".*Aloe Vera.*" }
+    timeout: 8000
+- waitForAnimationToEnd

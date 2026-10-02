@@ -1,0 +1,135 @@
+{
+  "at": "2026-10-02T02:50:36.062Z",
+  "ok": true,
+  "checks": [
+    {
+      "id": "journey.water-due-plant",
+      "level": "pass",
+      "msg": "Water a due plant from Today"
+    },
+    {
+      "id": "journey.add-plant",
+      "level": "pass",
+      "msg": "Add a new plant"
+    },
+    {
+      "id": "journey.plant-history",
+      "level": "pass",
+      "msg": "Open a plant and see history"
+    },
+    {
+      "id": "journey.upcoming-week",
+      "level": "pass",
+      "msg": "Check the week ahead"
+    },
+    {
+      "id": "journey.name-required",
+      "level": "pass",
+      "msg": "Plant name is required"
+    },
+    {
+      "id": "journey.settings-legal",
+      "level": "pass",
+      "msg": "Settings shows legal links"
+    },
+    {
+      "id": "journey.tabs",
+      "level": "pass",
+      "msg": "Tab bar navigation works"
+    },
+    {
+      "id": "screen.today.errors",
+      "level": "pass",
+      "msg": "/: no runtime errors (3 taps)"
+    },
+    {
+      "id": "screen.plants.errors",
+      "level": "pass",
+      "msg": "/plants: no runtime errors (1 taps)"
+    },
+    {
+      "id": "screen.upcoming.errors",
+      "level": "pass",
+      "msg": "/upcoming: no runtime errors (0 taps)"
+    },
+    {
+      "id": "screen.settings.errors",
+      "level": "pass",
+      "msg": "/settings: no runtime errors (5 taps)"
+    },
+    {
+      "id": "screen.plant-form.errors",
+      "level": "pass",
+      "msg": "/plant/new: no runtime errors (15 taps)"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "water-due-plant",
+      "title": "Water a due plant from Today",
+      "errors": []
+    },
+    {
+      "id": "add-plant",
+      "title": "Add a new plant",
+      "errors": []
+    },
+    {
+      "id": "plant-history",
+      "title": "Open a plant and see history",
+      "errors": []
+    },
+    {
+      "id": "upcoming-week",
+      "title": "Check the week ahead",
+      "errors": []
+    },
+    {
+      "id": "name-required",
+      "title": "Plant name is required",
+      "errors": []
+    },
+    {
+      "id": "settings-legal",
+      "title": "Settings shows legal links",
+      "errors": []
+    },
+    {
+      "id": "tabs",
+      "title": "Tab bar navigation works",
+      "errors": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "today",
+      "route": "/",
+      "tapped": 3,
+      "errors": []
+    },
+    {
+      "id": "plants",
+      "route": "/plants",
+      "tapped": 1,
+      "errors": []
+    },
+    {
+      "id": "upcoming",
+      "route": "/upcoming",
+      "tapped": 0,
+      "errors": []
+    },
+    {
+      "id": "settings",
+      "route": "/settings",
+      "tapped": 5,
+      "errors": []
+    },
+    {
+      "id": "plant-form",
+      "route": "/plant/new",
+      "tapped": 15,
+      "errors": []
+    }
+  ]
+}

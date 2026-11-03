@@ -11,6 +11,7 @@ The pipeline automates everything Apple's tooling allows. These remain, by desig
 | 5 | Price + availability (first release) | per app | 1 min | `farm asc price` sets Free; availability defaults need one confirmation in ASC |
 | 6 | TestFlight smoke test on a real iPhone | per release | 10 min | judgment call |
 | 7 | Press **submit** (or say "submit" to the agent) | per release | 1 min | it's your account and your app |
+| 8 | Web games with IAP / Game Center: create the IAP product and the Game Center leaderboards + achievements | per app | 10 min | product price/review screenshot and Game Center ids are owner choices; ids must match the game's code |
 
 ## 3. Create the app record
 **Option A — App Store Connect web (any computer):** Apps → `+` → New App → Platform iOS, Name = `store/listing.json`
@@ -26,6 +27,13 @@ If the name is taken, change `listing.json` `name` (and `spec.json` `app.name` i
 The agent generates the answers in `apps/<slug>/store/app_privacy.json` from the spec.
 **Mac:** `mac/app-privacy.sh <slug> you@appleid.com`. **Web:** App Store Connect → App Privacy → answer to match the
 JSON (`DATA_NOT_COLLECTED` = "No, we do not collect data from this app").
+
+## 8. In-App Purchase and Game Center (web games such as Straitwatch)
+App Store Connect → your app → **Monetization → In-App Purchases** → `+` → Non-Consumable, Product ID exactly as in
+`spec.json monetization.products[].productId`, reference name, price, a localized display name/description and the
+review screenshot. Then **Features → Game Center** (or Services → Game Center) → enable Game Center and add one
+leaderboard per map and the achievements, with the ids the game uses. Submit the IAP with the first app version
+(it is reviewed together with it). Paid apps/IAP also need the **Paid Apps agreement** active.
 
 ## 6. TestFlight smoke test
 Install TestFlight on your iPhone → the build appears after `farm-ios-release` finishes (internal testing needs no

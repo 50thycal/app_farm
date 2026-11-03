@@ -1,0 +1,144 @@
+# Capacitor web-game release (app.kind "web-game"): build the game repo's store flavour, archive the committed
+# Capacitor iOS project on a macOS runner, sign it automatically with the App Store Connect API key and upload
+# it to TestFlight. No Mac and no EAS needed.
+# Secrets: ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY (.p8 contents), APPLE_TEAM_ID.
+#   Automatic ("cloud-managed") signing creates the distribution certificate and profile on the fly; the API key
+#   must be allowed to do that (Admin access, see docs/SETUP.md §2).
+# The game repo is public: actions/checkout reads it with the default token.
+name: farm-capacitor-release
+on:
+  workflow_dispatch:
+    inputs:
+      slug: { description: 'App slug (apps/<slug>, app.kind web-game)', required: true, default: straitwatch }
+      game_ref: { description: 'Game repo branch/tag/commit (empty = spec.source.ref)', default: '' }
+      upload: { description: Upload to TestFlight (off = archive + export .ipa only), type: boolean, default: true }
+      xcode: { description: 'Xcode version for setup-xcode (e.g. latest-stable, 26.0)', default: latest-stable }
+permissions:
+  contents: write
+concurrency: release-${{ inputs.slug }}
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      SLUG: ${{ inputs.slug }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      FARM_SOURCE_PINNED: '1' # the game is checked out below at the requested ref; farm must not move it
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read the spec
+        id: spec
+        run: |
+          node -e '
+            const s = require("./apps/" + process.env.SLUG + "/spec.json");
+            if (s.app.kind !== "web-game") { console.error("::error::apps/" + process.env.SLUG + " is not app.kind web-game (use farm-ios-release)"); process.exit(1); }
+            const src = s.source, ios = src.ios || {};
+            const out = { repo: src.value, ref: process.env.GAME_REF || src.ref, project: ios.project || "ios/App/App.xcodeproj", scheme: ios.scheme || "App", bundle: s.app.bundleId };
+            for (const [k, v] of Object.entries(out)) require("fs").appendFileSync(process.env.GITHUB_OUTPUT, `${k}=${v}\n`);'
+        env: { GAME_REF: '${{ inputs.game_ref }}' }
+      - name: Check secrets
+        env: { ASC_PRIVATE_KEY: '${{ secrets.ASC_PRIVATE_KEY }}' }
+        run: |
+          missing=""; for k in ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY APPLE_TEAM_ID; do [ -n "${!k}" ] || missing="$missing $k"; done
+          [ -z "$missing" ] || { echo "::error::Missing GitHub secrets:$missing (docs/SETUP.md §4)"; exit 1; }
+      - name: Check out the game (${{ steps.spec.outputs.repo }}@${{ steps.spec.outputs.ref }})
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.spec.outputs.repo }}
+          ref: ${{ steps.spec.outputs.ref }}
+          path: apps/${{ inputs.slug }}/source
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: maxim-lobanov/setup-xcode@v1
+        with: { xcode-version: '${{ inputs.xcode }}' }
+      - run: xcodebuild -version && npm ci
+      - name: Game dependencies
+        working-directory: apps/${{ inputs.slug }}/source
+        run: npm ci
+      - name: Store build + bundle gate (self-contained, store flavour, no playtest tooling)
+        run: npx tsx farm/cli.ts bundle-check "$SLUG"
+      - name: Copy the bundle into the iOS project
+        working-directory: apps/${{ inputs.slug }}/source
+        run: npx cap sync ios
+      - name: Versions
+        id: ver
+        working-directory: apps/${{ inputs.slug }}/source
+        run: |
+          echo "marketing=$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+          # Monotonic per workflow: run number, with the attempt as the last digit so re-runs never collide.
+          echo "build=$(( GITHUB_RUN_NUMBER * 10 + GITHUB_RUN_ATTEMPT ))" >> "$GITHUB_OUTPUT"
+      - name: App Store Connect API key
+        env: { ASC_PRIVATE_KEY: '${{ secrets.ASC_PRIVATE_KEY }}' }
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" >> "$GITHUB_ENV"
+      - name: Archive (automatic signing via the API key)
+        working-directory: apps/${{ inputs.slug }}/source
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project "${{ steps.spec.outputs.project }}" -scheme "${{ steps.spec.outputs.scheme }}" \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            PRODUCT_BUNDLE_IDENTIFIER="${{ steps.spec.outputs.bundle }}" \
+            MARKETING_VERSION="${{ steps.ver.outputs.marketing }}" CURRENT_PROJECT_VERSION="${{ steps.ver.outputs.build }}" \
+            | tee "$RUNNER_TEMP/archive.log" | grep -E '^(\*\*|error:|warning: .*(sign|provision))' || true
+          test -d "$RUNNER_TEMP/App.xcarchive" || { tail -80 "$RUNNER_TEMP/archive.log"; exit 1; }
+      - name: Export options
+        run: |
+          for dest in export upload; do
+            cat > "$RUNNER_TEMP/ExportOptions-$dest.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>$dest</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          EOF
+            plutil -lint "$RUNNER_TEMP/ExportOptions-$dest.plist"
+          done
+      - name: Export the .ipa
+        run: |
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-export.plist" -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          ls -la "$RUNNER_TEMP/export"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.slug }}-${{ steps.ver.outputs.marketing }}-${{ steps.ver.outputs.build }}
+          path: |
+            ${{ runner.temp }}/export/*.ipa
+            ${{ runner.temp }}/archive.log
+            apps/${{ inputs.slug }}/reports/source.json
+      # Upload: `xcodebuild -exportArchive` with destination=upload is Xcode's own App Store Connect upload
+      # (what Organizer → Distribute → Upload runs) and authenticates with the same API key. altool's
+      # --upload-app is deprecated (Apple points to --upload-package, which also needs the app's Apple ID) and
+      # fastlane adds a Ruby toolchain for the same call.
+      - name: Upload to TestFlight
+        if: ${{ inputs.upload }}
+        run: |
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-upload.plist" -exportPath "$RUNNER_TEMP/upload" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      - name: Record build
+        run: npx tsx farm/cli.ts mark-build "$SLUG" "${{ steps.ver.outputs.build }}" ${{ inputs.upload && '--testflight' || '' }}
+      - name: Commit build record
+        run: |
+          git config user.name "app-farm-bot"; git config user.email "app-farm-bot@users.noreply.github.com"
+          git add "apps/$SLUG/pipeline.json"
+          git diff --cached --quiet || (git commit -m "farm($SLUG): build ${{ steps.ver.outputs.marketing }} (${{ steps.ver.outputs.build }}) ${{ inputs.upload && 'on TestFlight' || 'archived' }}" && git push)
+      - name: Remove the key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"

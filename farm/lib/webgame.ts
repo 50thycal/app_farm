@@ -19,8 +19,10 @@ export function repoUrl(src: WebGameSource) {
   return process.env.FARM_SOURCE_URL || `https://github.com/${src.value}.git`;
 }
 
+/** Single-quote a string for bash (no expansion of $, `, !). */
+export const shq = (s: string) => `'${s.replace(/'/g, `'\\''`)}'`;
 const sh = (cmd: string, cwd: string, o: { quiet?: boolean; env?: Record<string, string>; timeoutSec?: number } = {}) =>
-  run('bash', ['-c', o.timeoutSec ? `timeout ${o.timeoutSec} bash -c ${JSON.stringify(cmd)}` : cmd], { cwd, quiet: o.quiet, env: o.env });
+  run('bash', ['-c', o.timeoutSec ? `timeout ${o.timeoutSec} bash -c ${shq(cmd)}` : cmd], { cwd, quiet: o.quiet, env: o.env });
 
 export async function git(cwd: string, args: string[]) {
   const r = await run('git', args, { cwd, quiet: true });

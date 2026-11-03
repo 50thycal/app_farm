@@ -232,7 +232,9 @@ export async function recordWebPreview(slug: string, shots: Shots, baseUrl: stri
   const t0 = Date.now();
   let t1 = 0;
   try {
-    const ctx = await phoneContext(browser, baseUrl, { width: vw / 2, height: vh / 2, dpr: 2, video: { dir: vidDir, size: { width: vw, height: vh } } });
+    // Record at the CSS viewport size: Playwright does not upscale into a larger `size` (it pads the frame, which
+    // left 3/4 of earlier previews gray). ffmpeg scales to the App Preview size below.
+    const ctx = await phoneContext(browser, baseUrl, { width: vw / 2, height: vh / 2, dpr: 2, video: { dir: vidDir, size: { width: Math.round(vw / 2), height: Math.round(vh / 2) } } });
     await seedStorage(ctx, shots.preview.seed);
     const page = await ctx.newPage();
     const [first, ...rest] = shots.preview.steps;

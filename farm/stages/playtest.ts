@@ -12,7 +12,7 @@ import type { Page } from 'playwright-core';
 import { appPaths, chromiumPath, ensureDir, log, run, writeJson, writeText } from '../lib/util.ts';
 import { Checks, validateFile } from '../lib/state.ts';
 import { exportWeb, launch, loadHooks, phoneContext, runSteps, serveStatic, trackErrors, waitForApp } from '../lib/web.ts';
-import { sourceOf, sourceState, storeBundle } from '../lib/webgame.ts';
+import { shq, sourceOf, sourceState, storeBundle } from '../lib/webgame.ts';
 import { seedStorage } from './assets.ts';
 
 const UNSAFE = /delete|remove|sign ?out|log ?out|reset|erase|purchase|subscribe|buy|restore/i;
@@ -137,7 +137,7 @@ const tail = (s: string, n: number) => s.trim().split('\n').slice(-n).join('\n')
 /** One-line summary of a test runner's output (vitest/jest totals, or ok:/FAIL: line counts). */
 function suiteSummary(out: string) {
   const plain = out.replace(/\x1b\[[0-9;]*m/g, '');
-  const totals = plain.match(/^\s*Tests?\s+(.+)$/m)?.[1]?.trim();
+  const totals = plain.match(/^\s*Tests\s+(\d.+)$/m)?.[1]?.trim();
   if (totals) return `tests: ${totals}`;
   const ok = (plain.match(/^ok:/gm) ?? []).length;
   const bad = (plain.match(/^FAIL:/gm) ?? []).length;
@@ -188,7 +188,7 @@ export async function playtestWebGame(slug: string, opts: { skipBuild?: boolean;
       // Output goes to a file, not a pipe: a grandchild that outlives the suite (a test's server, esbuild)
       // would otherwise hold the pipe open and the run would never finish.
       const logFile = path.join(P.tmp, 'suites', `${t.id}.log`);
-      const r = await run('bash', ['-c', `timeout ${t.timeoutSec} bash -c ${JSON.stringify(t.cmd)} > ${JSON.stringify(logFile)} 2>&1 < /dev/null`], { cwd: P.source, quiet: true, env });
+      const r = await run('bash', ['-c', `timeout ${t.timeoutSec} bash -c ${shq(t.cmd)} > ${shq(logFile)} 2>&1 < /dev/null`], { cwd: P.source, quiet: true, env });
       const out = existsSync(logFile) ? readFileSync(logFile, 'utf8') : `${r.stdout}\n${r.stderr}`;
       const summary = suiteSummary(out);
       const secs = Math.round((Date.now() - t0) / 1000);

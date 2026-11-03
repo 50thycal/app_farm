@@ -2,7 +2,7 @@
  * Apple review preflight — every automatable check we know App Review (and App Store Connect's
  * upload validation) applies. FAIL = would be rejected or refused at upload. WARN = judgment call.
  */
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { appPaths, log, newestMtime, readJson, readJsonIf, run, walk, which, writeJson, writeText } from '../lib/util.ts';
@@ -95,6 +95,17 @@ export async function preflight(slug: string, opts: { fast?: boolean } = {}) {
     c.expect(v?.codec_name === 'h264', 'preview.codec', 'preview H.264', `codec ${v?.codec_name}`);
     c.expect(!!a, 'preview.audio', 'preview has audio track', 'preview has no audio track (App Store Connect may reject it)', undefined, 'warn');
     c.expect(statSync(prev).size < PREVIEW.maxBytes, 'preview.bytes', 'preview < 500MB', 'preview too large');
+    // A frame that is mostly one flat color (e.g. the recording only filled a corner) is not the app in use.
+    const framePng = path.join(P.dir, '.farm-tmp', 'preview-5s.png');
+    mkdirSync(path.dirname(framePng), { recursive: true });
+    const frame = await run('ffmpeg', ['-v', 'error', '-y', '-ss', '5', '-i', prev, '-frames:v', '1', framePng], { quiet: true });
+    if (frame.code === 0 && existsSync(framePng)) {
+      const png = readFileSync(framePng);
+      const m = await sharp(png).metadata();
+      const q = await sharp(png).extract({ left: Math.floor(m.width! / 2), top: Math.floor(m.height! / 2), width: Math.floor(m.width! / 2), height: Math.floor(m.height! / 2) }).stats();
+      const flat = q.channels.slice(0, 3).every((ch) => ch.stdev < 1.5);
+      c.expect(!flat, 'preview.content', 'preview frame is filled', 'preview frame at 5 s: the bottom-right quarter is one flat color — the recording does not fill the frame (re-run assets)', '2.3.4', 'warn');
+    }
   }
 
   // ------------------------------------------------------------ H. privacy label + site

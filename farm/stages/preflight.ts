@@ -102,7 +102,9 @@ export async function preflight(slug: string, opts: { fast?: boolean } = {}) {
     if (frame.code === 0 && existsSync(framePng)) {
       const png = readFileSync(framePng);
       const m = await sharp(png).metadata();
-      const q = await sharp(png).extract({ left: Math.floor(m.width! / 2), top: Math.floor(m.height! / 2), width: Math.floor(m.width! / 2), height: Math.floor(m.height! / 2) }).stats();
+      // stats() reads the input, not the extract: materialize the quarter first.
+      const quarter = await sharp(png).extract({ left: Math.floor(m.width! / 2), top: Math.floor(m.height! / 2), width: Math.floor(m.width! / 2), height: Math.floor(m.height! / 2) }).png().toBuffer();
+      const q = await sharp(quarter).stats();
       const flat = q.channels.slice(0, 3).every((ch) => ch.stdev < 1.5);
       c.expect(!flat, 'preview.content', 'preview frame is filled', 'preview frame at 5 s: the bottom-right quarter is one flat color — the recording does not fill the frame (re-run assets)', '2.3.4', 'warn');
     }

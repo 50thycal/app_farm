@@ -12,7 +12,7 @@
     },
     "spec": {
       "status": "done",
-      "updatedAt": "2026-11-03T04:12:50.221Z"
+      "updatedAt": "2026-11-03T04:16:42.967Z"
     },
     "scaffold": {
       "status": "done",
@@ -306,6 +306,11 @@
     {
       "at": "2026-11-03T04:12:51.503Z",
       "stage": "intake",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T04:16:42.967Z",
+      "stage": "spec",
       "event": "done"
     }
   ]

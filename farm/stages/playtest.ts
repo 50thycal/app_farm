@@ -6,7 +6,7 @@
  * Every screen is captured to reports/playtest/*.png so an agent can visually review the UI.
  */
 import path from 'node:path';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { spawn, type ChildProcess } from 'node:child_process';
 import type { Page } from 'playwright-core';
 import { appPaths, chromiumPath, ensureDir, log, run, writeJson, writeText } from '../lib/util.ts';
@@ -174,7 +174,10 @@ export async function playtestWebGame(slug: string, opts: { skipBuild?: boolean;
         log.info(`${src.previewServer.buildCmd} (for the game's e2e suites)`);
         const b = await run('bash', ['-c', src.previewServer.buildCmd], { cwd: P.source, quiet: true });
         if (b.code !== 0) { checks.fail('suite.preview-build', `${src.previewServer.buildCmd} failed: ${tail(b.stderr || b.stdout, 8)}`); break; }
-        server = await startServer(src.previewServer.cmd, P.source, src.previewServer.url);
+        try { server = await startServer(src.previewServer.cmd, P.source, src.previewServer.url); } catch (e) {
+          checks.fail('suite.preview-server', `${(e as Error).message} (is something else on ${src.previewServer.url}?)`);
+          break;
+        }
       }
       log.info(`suite ${t.id}: ${t.cmd}`);
       const t0 = Date.now();
@@ -182,9 +185,11 @@ export async function playtestWebGame(slug: string, opts: { skipBuild?: boolean;
       if (src.previewServer) env.BASE_URL = src.previewServer.url;
       const chrome = chromiumPath();
       if (chrome) env.CHROMIUM_PATH = chrome;
-      const r = await run('bash', ['-c', `timeout ${t.timeoutSec} bash -c ${JSON.stringify(t.cmd)}`], { cwd: P.source, quiet: true, env });
-      const out = `${r.stdout}\n${r.stderr}`;
-      writeText(path.join(P.tmp, 'suites', `${t.id}.log`), out);
+      // Output goes to a file, not a pipe: a grandchild that outlives the suite (a test's server, esbuild)
+      // would otherwise hold the pipe open and the run would never finish.
+      const logFile = path.join(P.tmp, 'suites', `${t.id}.log`);
+      const r = await run('bash', ['-c', `timeout ${t.timeoutSec} bash -c ${JSON.stringify(t.cmd)} > ${JSON.stringify(logFile)} 2>&1 < /dev/null`], { cwd: P.source, quiet: true, env });
+      const out = existsSync(logFile) ? readFileSync(logFile, 'utf8') : `${r.stdout}\n${r.stderr}`;
       const summary = suiteSummary(out);
       const secs = Math.round((Date.now() - t0) / 1000);
       checks.add(`suite.${t.id}`, r.code === 0 ? 'pass' : t.critical ? 'fail' : 'warn',

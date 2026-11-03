@@ -42,7 +42,7 @@
       },
       {
         "id": "e2e-v3-store",
-        "cmd": "npm run build:store && { npx vite preview --port 4184 --strictPort >/dev/null 2>&1 & P=$!; for i in $(seq 60); do curl -sf http://localhost:4184/ >/dev/null && break; sleep 0.5; done; BASE_URL=http://localhost:4184 node e2e/v3-store.mjs; S=$?; kill $P; exit $S; }",
+        "cmd": "npm run build:store && { ./node_modules/.bin/vite preview --port 4184 --strictPort >/dev/null 2>&1 & P=$!; for i in $(seq 60); do curl -sf http://localhost:4184/ >/dev/null && break; sleep 0.5; done; BASE_URL=http://localhost:4184 node e2e/v3-store.mjs; S=$?; kill $P; exit $S; }",
         "timeoutSec": 900
       }
     ],

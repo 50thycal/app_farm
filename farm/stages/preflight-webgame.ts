@@ -173,8 +173,15 @@ export async function webGamePreflight(slug: string, S: Spec, cfg: FarmConfig): 
 
   // ------------------------------------------------------------ Game Center
   if (S.app.gameCenter) {
-    const swift = listFiles(appDir, /\.swift$/).filter((f) => /import GameKit/.test(readFileSync(f, 'utf8')));
-    c.expect(swift.length > 0, 'gamecenter.code', `GameKit used (${swift.map((f) => path.basename(f)).join(', ')})`, 'spec declares Game Center but no Swift file in the app imports GameKit');
+    // The app target's own Swift files, plus local Swift packages the Capacitor SPM manifest links
+    // (a game's own plugin usually lives in one, e.g. native/game-center).
+    const spmDir = path.dirname(spm);
+    const local = existsSync(spm)
+      ? [...readFileSync(spm, 'utf8').matchAll(/\.package\(\s*name:\s*"[^"]+",\s*path:\s*"([^"]+)"/g)].map((m) => path.resolve(spmDir, m[1])).filter((d) => !d.includes(`${path.sep}node_modules${path.sep}`))
+      : [];
+    const swift = [appDir, ...local].flatMap((d) => listFiles(d, /\.swift$/)).filter((f) => /import GameKit/.test(readFileSync(f, 'utf8')));
+    c.expect(swift.length > 0, 'gamecenter.code', `GameKit used (${swift.map((f) => path.relative(P.source, f)).join(', ')})`,
+      'spec declares Game Center but no Swift file in the app target or in a local package linked by CapApp-SPM imports GameKit');
     const ent = listFiles(appDir, /\.entitlements$/).find((f) => /com\.apple\.developer\.game-center/.test(readFileSync(f, 'utf8')));
     c.expect(!!ent, 'gamecenter.entitlement', `Game Center entitlement in ${ent ? path.basename(ent) : ''}`,
       'No .entitlements file with com.apple.developer.game-center — Game Center sign-in fails without it', undefined, 'warn');

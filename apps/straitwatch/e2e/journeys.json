@@ -1,0 +1,359 @@
+{
+  "journeys": [
+    {
+      "id": "first-run",
+      "title": "Start the first map from a fresh install",
+      "critical": true,
+      "demo": false,
+      "seed": {
+        "straitwatch.v3.notes": "0"
+      },
+      "steps": [
+        {
+          "open": "/"
+        },
+        {
+          "expect": {
+            "css": "[data-map=\"strait\"]"
+          }
+        },
+        {
+          "screenshot": "menu"
+        },
+        {
+          "tap": {
+            "css": "[data-map=\"strait\"]"
+          }
+        },
+        {
+          "expect": {
+            "css": "[data-screen=\"loadout\"]"
+          }
+        },
+        {
+          "screenshot": "briefing"
+        },
+        {
+          "tap": {
+            "css": "[data-start]"
+          }
+        },
+        {
+          "expect": {
+            "css": ".playing"
+          }
+        },
+        {
+          "hook": "play",
+          "ms": 6000
+        },
+        {
+          "screenshot": "wave-1"
+        }
+      ]
+    },
+    {
+      "id": "armory",
+      "title": "Equip an Armory card",
+      "critical": true,
+      "demo": false,
+      "seed": {
+        "straitwatch.v3.progress": {
+          "unlocked": 5,
+          "best": {
+            "strait": {
+              "score": 4120,
+              "wave": 10
+            },
+            "kesh": {
+              "score": 3865,
+              "wave": 10
+            },
+            "marrow": {
+              "score": 3410,
+              "wave": 10
+            },
+            "gauntlet": {
+              "score": 2975,
+              "wave": 10
+            },
+            "harbor": {
+              "score": 1840,
+              "wave": 7
+            }
+          },
+          "cards": 9,
+          "armory": {
+            "warhead": 2,
+            "magazine": 2,
+            "reload": 1,
+            "pointdef": 1,
+            "plating": 1,
+            "drops": 1,
+            "longload": 1
+          },
+          "equipped": {
+            "gun": "warhead",
+            "hull": "pointdef",
+            "supply": "drops"
+          },
+          "cleared": [
+            "strait",
+            "kesh",
+            "marrow",
+            "gauntlet"
+          ],
+          "armoryV": 2,
+          "open": [],
+          "mapsV": 2
+        },
+        "straitwatch.v3.notes": "0"
+      },
+      "steps": [
+        {
+          "open": "/"
+        },
+        {
+          "tap": {
+            "css": ".v3-armory-btn"
+          }
+        },
+        {
+          "expect": {
+            "css": "[data-screen=\"armory\"]"
+          }
+        },
+        {
+          "tap": {
+            "css": ".v3-armory-card[data-armory=\"magazine\"]"
+          }
+        },
+        {
+          "screenshot": "armory"
+        },
+        {
+          "tap": {
+            "css": "[data-screen=\"armory\"] [data-back]"
+          }
+        },
+        {
+          "expect": {
+            "css": "[data-screen=\"menu\"]"
+          }
+        }
+      ]
+    },
+    {
+      "id": "settings-legal",
+      "title": "Settings shows the privacy policy, the version and the full-game unlock (Restore is native-only: checked in the bundle and on TestFlight)",
+      "critical": true,
+      "demo": false,
+      "seed": {
+        "straitwatch.v3.progress": {
+          "unlocked": 5,
+          "best": {
+            "strait": {
+              "score": 4120,
+              "wave": 10
+            },
+            "kesh": {
+              "score": 3865,
+              "wave": 10
+            },
+            "marrow": {
+              "score": 3410,
+              "wave": 10
+            },
+            "gauntlet": {
+              "score": 2975,
+              "wave": 10
+            },
+            "harbor": {
+              "score": 1840,
+              "wave": 7
+            }
+          },
+          "cards": 9,
+          "armory": {
+            "warhead": 2,
+            "magazine": 2,
+            "reload": 1,
+            "pointdef": 1,
+            "plating": 1,
+            "drops": 1,
+            "longload": 1
+          },
+          "equipped": {
+            "gun": "warhead",
+            "hull": "pointdef",
+            "supply": "drops"
+          },
+          "cleared": [
+            "strait",
+            "kesh",
+            "marrow",
+            "gauntlet"
+          ],
+          "armoryV": 2,
+          "open": [],
+          "mapsV": 2
+        },
+        "straitwatch.v3.notes": "0"
+      },
+      "steps": [
+        {
+          "open": "/"
+        },
+        {
+          "tap": {
+            "css": ".v2-settings-btn"
+          }
+        },
+        {
+          "wait": 500
+        },
+        {
+          "screenshot": "settings"
+        },
+        {
+          "expect": {
+            "text": "Privacy"
+          }
+        },
+        {
+          "expect": {
+            "text": "Version 1.0.0"
+          }
+        },
+        {
+          "tap": {
+            "css": "[data-setting=\"unlock\"] button"
+          }
+        },
+        {
+          "expect": {
+            "text": "Fifteen more maps"
+          }
+        },
+        {
+          "screenshot": "unlock"
+        }
+      ]
+    },
+    {
+      "id": "draft",
+      "title": "Defend wave 1 and draft a weapon",
+      "critical": true,
+      "demo": false,
+      "seed": {
+        "straitwatch.v3.progress": {
+          "unlocked": 5,
+          "best": {
+            "strait": {
+              "score": 4120,
+              "wave": 10
+            },
+            "kesh": {
+              "score": 3865,
+              "wave": 10
+            },
+            "marrow": {
+              "score": 3410,
+              "wave": 10
+            },
+            "gauntlet": {
+              "score": 2975,
+              "wave": 10
+            },
+            "harbor": {
+              "score": 1840,
+              "wave": 7
+            }
+          },
+          "cards": 9,
+          "armory": {
+            "warhead": 2,
+            "magazine": 2,
+            "reload": 1,
+            "pointdef": 1,
+            "plating": 1,
+            "drops": 1,
+            "longload": 1
+          },
+          "equipped": {
+            "gun": "warhead",
+            "hull": "pointdef",
+            "supply": "drops"
+          },
+          "cleared": [
+            "strait",
+            "kesh",
+            "marrow",
+            "gauntlet"
+          ],
+          "armoryV": 2,
+          "open": [],
+          "mapsV": 2
+        },
+        "straitwatch.v3.notes": "0"
+      },
+      "steps": [
+        {
+          "open": "/"
+        },
+        {
+          "tap": {
+            "css": "[data-map=\"strait\"]"
+          }
+        },
+        {
+          "tap": {
+            "css": "[data-start]"
+          }
+        },
+        {
+          "expect": {
+            "css": ".playing"
+          }
+        },
+        {
+          "tap": {
+            "css": ".v3-speed"
+          }
+        },
+        {
+          "tap": {
+            "css": ".v3-speed"
+          }
+        },
+        {
+          "tap": {
+            "css": ".v3-speed"
+          }
+        },
+        {
+          "hook": "playToWave",
+          "ms": 90000,
+          "args": {
+            "wave": 2,
+            "draft": [
+              "flak"
+            ]
+          }
+        },
+        {
+          "hook": "play",
+          "ms": 3000
+        },
+        {
+          "expect": {
+            "css": ".v3-weapon.held"
+          }
+        },
+        {
+          "screenshot": "wave-2"
+        }
+      ]
+    }
+  ]
+}

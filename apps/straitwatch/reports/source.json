@@ -1,0 +1,10 @@
+{
+  "repo": "50thycal/td_cargo_ship",
+  "ref": "claude/mobile-game-predator-prey-tu1t5k",
+  "sha": "87f357f1e533d349f06b81329c8b3a79932a5abf",
+  "builtAt": "2026-11-03T04:10:23.944Z",
+  "buildCmd": "npm run build:store",
+  "entry": "index.html",
+  "usedFallback": false,
+  "storeFlavor": true
+}

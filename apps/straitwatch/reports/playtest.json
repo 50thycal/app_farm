@@ -1,0 +1,206 @@
+{
+  "at": "2026-11-03T04:11:21.468Z",
+  "ok": true,
+  "checks": [
+    {
+      "id": "suite.unit",
+      "level": "pass",
+      "msg": "npm test: tests: 988 passed (988) (129s)"
+    },
+    {
+      "id": "suite.e2e-v3",
+      "level": "pass",
+      "msg": "node e2e/v3.mjs: 137 ok, 0 FAIL (568s)"
+    },
+    {
+      "id": "suite.e2e-v3-audio",
+      "level": "pass",
+      "msg": "node e2e/v3-audio.mjs: 16 ok, 0 FAIL (22s)"
+    },
+    {
+      "id": "suite.e2e-v3-store",
+      "level": "pass",
+      "msg": "npm run build:store && { npx vite preview --port 4184 --strictPort >/dev/null 2>&1 & P=$!; for i in $(seq 60); do curl -sf http://localhost:4184/ >/dev/null && break; sleep 0.5; done; BASE_URL=http://localhost:4184 node e2e/v3-store.mjs; S=$?; kill $P; exit $S; }: 80 ok, 0 FAIL (26s)"
+    },
+    {
+      "id": "store.flavor",
+      "level": "pass",
+      "msg": "index.html is the store flavour"
+    },
+    {
+      "id": "screen.956x440.overflow",
+      "level": "pass",
+      "msg": "956×440: fits the screen",
+      "ref": "HIG layout"
+    },
+    {
+      "id": "screen.956x440.errors",
+      "level": "pass",
+      "msg": "956×440: no runtime errors"
+    },
+    {
+      "id": "screen.956x440.remote",
+      "level": "pass",
+      "msg": "956×440: no remote requests",
+      "ref": "4.2"
+    },
+    {
+      "id": "screen.874x402.overflow",
+      "level": "pass",
+      "msg": "874×402: fits the screen",
+      "ref": "HIG layout"
+    },
+    {
+      "id": "screen.874x402.errors",
+      "level": "pass",
+      "msg": "874×402: no runtime errors"
+    },
+    {
+      "id": "screen.874x402.remote",
+      "level": "pass",
+      "msg": "874×402: no remote requests",
+      "ref": "4.2"
+    },
+    {
+      "id": "screen.844x390.overflow",
+      "level": "pass",
+      "msg": "844×390: fits the screen",
+      "ref": "HIG layout"
+    },
+    {
+      "id": "screen.844x390.errors",
+      "level": "pass",
+      "msg": "844×390: no runtime errors"
+    },
+    {
+      "id": "screen.844x390.remote",
+      "level": "pass",
+      "msg": "844×390: no remote requests",
+      "ref": "4.2"
+    },
+    {
+      "id": "screen.667x375.overflow",
+      "level": "pass",
+      "msg": "667×375: fits the screen",
+      "ref": "HIG layout"
+    },
+    {
+      "id": "screen.667x375.errors",
+      "level": "pass",
+      "msg": "667×375: no runtime errors"
+    },
+    {
+      "id": "screen.667x375.remote",
+      "level": "pass",
+      "msg": "667×375: no remote requests",
+      "ref": "4.2"
+    },
+    {
+      "id": "journey.first-run",
+      "level": "pass",
+      "msg": "Start the first map from a fresh install"
+    },
+    {
+      "id": "journey.armory",
+      "level": "pass",
+      "msg": "Equip an Armory card"
+    },
+    {
+      "id": "journey.settings-legal",
+      "level": "pass",
+      "msg": "Settings shows the privacy policy, the version and the full-game unlock (Restore is native-only: checked in the bundle and on TestFlight)"
+    },
+    {
+      "id": "journey.draft",
+      "level": "pass",
+      "msg": "Defend wave 1 and draft a weapon"
+    }
+  ],
+  "source": {
+    "exists": true,
+    "sha": "87f357f1e533d349f06b81329c8b3a79932a5abf",
+    "dirty": false
+  },
+  "suites": [
+    {
+      "id": "unit",
+      "cmd": "npm test",
+      "code": 0,
+      "secs": 129,
+      "summary": "tests: 988 passed (988)",
+      "tail": " \u001b[32m✓\u001b[39m tests/v3/unlock.store.test.ts \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 124\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/v3/routes.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 2343\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m frigates sail the water on every map\u001b[2m > \u001b[22min, on station and off again at every level: never over land, on the carrier or on each other \u001b[33m2169\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/v3/playthrough.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 127\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/interceptorEconomy.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 54113\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m interceptor economy\u001b[2m > \u001b[22mlets late-round income answer late-round missiles in missileCoast \u001b[33m14652\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m interceptor economy\u001b[2m > \u001b[22mlets late-round income answer late-round missiles in homeStrait \u001b[33m13449\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m interceptor economy\u001b[2m > \u001b[22mlets late-round income answer late-round missiles in pirateNarrows \u001b[33m7732\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m interceptor economy\u001b[2m > \u001b[22mlets late-round income answer late-round missiles in headlands \u001b[33m9700\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m interceptor economy\u001b[2m > \u001b[22mstill charges enough for ammunition to be a real line on the budget \u001b[33m8578\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m34 passed\u001b[39m\u001b[22m\u001b[90m (34)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m988 passed\u001b[39m\u001b[22m\u001b[90m (988)\u001b[39m\n\u001b[2m   Start at \u001b[22m 03:57:39\n\u001b[2m   Duration \u001b[22m 128.19s\u001b[2m (transform 2.72s, setup 0ms, collect 6.38s, tests 311.16s, environment 6ms, prepare 2.31s)\u001b[22m"
+    },
+    {
+      "id": "e2e-v3",
+      "cmd": "node e2e/v3.mjs",
+      "code": 0,
+      "secs": 568,
+      "summary": "137 ok, 0 FAIL",
+      "tail": "ok: tray on island 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on behemoth 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on needle 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on archipelago 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on saltgate 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on battery 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on sowers 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on rigs 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on lantern 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on dreadnought 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on coves 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on delta 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on crossing 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on tide 667×375: 70 samples, up to 1 cards at once, no overlaps\nok: tray on citadel 667×375: 70 samples, up to 1 cards at once, no overlaps"
+    },
+    {
+      "id": "e2e-v3-audio",
+      "cmd": "node e2e/v3-audio.mjs",
+      "code": 0,
+      "secs": 22,
+      "summary": "16 ok, 0 FAIL",
+      "tail": "ok: the first tap starts the AudioContext (running)\nok: every sound file loads (0 failed)\nok: menu music plays on the menu (menu.music)\nok: a tap's gun.fire sound plays 0.7 ms after the tap (≤ 20)\nok: 12 sim cues each played in the frame its step ran (worst -0.4 ms after that frame began; ≤ 20)\nok: the wave's cues include the gun and kills (menu.music, ui.tap, wave.start, battle.music, raid.warning, debut.sting, drone.launch, gun.fire, kill.small, gun.reload)\nok: battle music in a run (menu.music → battle.music)\nok: voices stay under the cap (max 6)\nok: hidden page: audio suspended\nok: visible again: audio running\nok: Sound off mutes and suspends (suspended)\nok: the volume slider greys out while muted\nok: Sound on resumes\nok: the sound setting is saved\nok: no page errors ()"
+    },
+    {
+      "id": "e2e-v3-store",
+      "cmd": "npm run build:store && { npx vite preview --port 4184 --strictPort >/dev/null 2>&1 & P=$!; for i in $(seq 60); do curl -sf http://localhost:4184/ >/dev/null && break; sleep 0.5; done; BASE_URL=http://localhost:4184 node e2e/v3-store.mjs; S=$?; kill $P; exit $S; }",
+      "code": 0,
+      "secs": 26,
+      "summary": "80 ok, 0 FAIL",
+      "tail": "ok: 667x375: Settings fits or scrolls\nok: 667x375: reset cleared progress\nok: 667x375: after reset only map 1 is open (1)\nok: 667x375: no NOTE/RATE button in a run\nok: 667x375: hiding the page pauses the run\nok: 667x375: pause menu has no note/rate\nok: 667x375: no page errors \nok: 667x375: no requests off the app's origin \nok: owned: chapter 2 map 1 opens (save had chapter 1 cleared)\nok: owned: no FULL GAME flag\nok: owned: Free Play offers all 20 maps (20)\nok: owned: Settings no longer offers the unlock\nok: owned: no page errors \n\nall store checks passed"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "first-run",
+      "title": "Start the first map from a fresh install",
+      "errors": [],
+      "external": []
+    },
+    {
+      "id": "armory",
+      "title": "Equip an Armory card",
+      "errors": [],
+      "external": []
+    },
+    {
+      "id": "settings-legal",
+      "title": "Settings shows the privacy policy, the version and the full-game unlock (Restore is native-only: checked in the bundle and on TestFlight)",
+      "errors": [],
+      "external": []
+    },
+    {
+      "id": "draft",
+      "title": "Defend wave 1 and draft a weapon",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "screens": [
+    {
+      "size": "956x440",
+      "errors": [],
+      "external": []
+    },
+    {
+      "size": "874x402",
+      "errors": [],
+      "external": []
+    },
+    {
+      "size": "844x390",
+      "errors": [],
+      "external": []
+    },
+    {
+      "size": "667x375",
+      "errors": [],
+      "external": []
+    }
+  ]
+}

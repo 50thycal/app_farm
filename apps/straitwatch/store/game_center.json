@@ -1,0 +1,277 @@
+{
+  "note": "Game Center configuration for App Store Connect, generated from td_cargo_ship src/v3/platform/gamecenter.ts and src/v3/data/maps.ts. Ids must match the game exactly. Points are a suggestion (total ≤ 1000); names/descriptions are the game's own.",
+  "leaderboards": [
+    {
+      "id": "straitwatch.best.strait",
+      "referenceName": "Best score - The Strait",
+      "localizedName": "The Strait",
+      "chapter": "Home Waters",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.kesh",
+      "referenceName": "Best score - The Kesh Hook",
+      "localizedName": "The Kesh Hook",
+      "chapter": "Home Waters",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.marrow",
+      "referenceName": "Best score - Lee of Marrow",
+      "localizedName": "Lee of Marrow",
+      "chapter": "Home Waters",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.gauntlet",
+      "referenceName": "Best score - The Gauntlet",
+      "localizedName": "The Gauntlet",
+      "chapter": "Home Waters",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.harbor",
+      "referenceName": "Best score - Harbor Mouth",
+      "localizedName": "Harbor Mouth",
+      "chapter": "Home Waters",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.island",
+      "referenceName": "Best score - The Island",
+      "localizedName": "The Island",
+      "chapter": "The Narrows",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.behemoth",
+      "referenceName": "Best score - The Behemoth Run",
+      "localizedName": "The Behemoth Run",
+      "chapter": "The Narrows",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.needle",
+      "referenceName": "Best score - The Needle of Bosk",
+      "localizedName": "The Needle of Bosk",
+      "chapter": "The Narrows",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.archipelago",
+      "referenceName": "Best score - The Archipelago",
+      "localizedName": "The Archipelago",
+      "chapter": "The Narrows",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.saltgate",
+      "referenceName": "Best score - Saltgate Canal",
+      "localizedName": "Saltgate Canal",
+      "chapter": "The Narrows",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.battery",
+      "referenceName": "Best score - Battery Point",
+      "localizedName": "Battery Point",
+      "chapter": "Dark Water",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.sowers",
+      "referenceName": "Best score - Sowers' Reach",
+      "localizedName": "Sowers' Reach",
+      "chapter": "Dark Water",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.rigs",
+      "referenceName": "Best score - The Rig Field",
+      "localizedName": "The Rig Field",
+      "chapter": "Dark Water",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.lantern",
+      "referenceName": "Best score - The Black Strait",
+      "localizedName": "The Black Strait",
+      "chapter": "Dark Water",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.dreadnought",
+      "referenceName": "Best score - Dreadnought Pass",
+      "localizedName": "Dreadnought Pass",
+      "chapter": "Dark Water",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.coves",
+      "referenceName": "Best score - Smugglers' Coves",
+      "localizedName": "Smugglers' Coves",
+      "chapter": "Open War",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.delta",
+      "referenceName": "Best score - The Sharra Delta",
+      "localizedName": "The Sharra Delta",
+      "chapter": "Open War",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.crossing",
+      "referenceName": "Best score - Dunmar Crossing",
+      "localizedName": "Dunmar Crossing",
+      "chapter": "Open War",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.tide",
+      "referenceName": "Best score - Tidewater Flats",
+      "localizedName": "Tidewater Flats",
+      "chapter": "Open War",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    },
+    {
+      "id": "straitwatch.best.citadel",
+      "referenceName": "Best score - Citadel of Vey",
+      "localizedName": "Citadel of Vey",
+      "chapter": "Open War",
+      "scoreSortType": "DESC",
+      "submissionType": "BEST_SCORE",
+      "scoreFormat": "INTEGER",
+      "formatterSuffix": " points"
+    }
+  ],
+  "achievements": [
+    {
+      "id": "straitwatch.ach.first_clear",
+      "referenceName": "Convoy Through",
+      "title": "Convoy Through",
+      "beforeEarned": "Clear your first map.",
+      "afterEarned": "Clear your first map.",
+      "points": 25,
+      "hidden": false,
+      "repeatable": false
+    },
+    {
+      "id": "straitwatch.ach.chapter1",
+      "referenceName": "Home Waters Secured",
+      "title": "Home Waters Secured",
+      "beforeEarned": "Clear every map in Home Waters.",
+      "afterEarned": "Clear every map in Home Waters.",
+      "points": 50,
+      "hidden": false,
+      "repeatable": false
+    },
+    {
+      "id": "straitwatch.ach.chapter2",
+      "referenceName": "The Narrows Held",
+      "title": "The Narrows Held",
+      "beforeEarned": "Clear every map in The Narrows.",
+      "afterEarned": "Clear every map in The Narrows.",
+      "points": 75,
+      "hidden": false,
+      "repeatable": false
+    },
+    {
+      "id": "straitwatch.ach.chapter3",
+      "referenceName": "Dark Water Crossed",
+      "title": "Dark Water Crossed",
+      "beforeEarned": "Clear every map in Dark Water.",
+      "afterEarned": "Clear every map in Dark Water.",
+      "points": 100,
+      "hidden": false,
+      "repeatable": false
+    },
+    {
+      "id": "straitwatch.ach.chapter4",
+      "referenceName": "Open War Won",
+      "title": "Open War Won",
+      "beforeEarned": "Clear every map in Open War.",
+      "afterEarned": "Clear every map in Open War.",
+      "points": 150,
+      "hidden": false,
+      "repeatable": false
+    },
+    {
+      "id": "straitwatch.ach.armory10",
+      "referenceName": "Quartermaster",
+      "title": "Quartermaster",
+      "beforeEarned": "Win 10 Armory cards.",
+      "afterEarned": "Win 10 Armory cards.",
+      "points": 50,
+      "hidden": false,
+      "repeatable": false
+    },
+    {
+      "id": "straitwatch.ach.endless20",
+      "referenceName": "Long Watch",
+      "title": "Long Watch",
+      "beforeEarned": "Reach wave 20 in Endless mode.",
+      "afterEarned": "Reach wave 20 in Endless mode.",
+      "points": 75,
+      "hidden": false,
+      "repeatable": false
+    }
+  ]
+}

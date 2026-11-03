@@ -12,10 +12,11 @@ Source of truth: https://developer.apple.com/app-store/review/guidelines/ — re
 | 2.3.10 Other platforms | mentioning Android/Google Play | Gate: listing + code scan |
 | 2.5.1 Public APIs | private APIs | Expo SDK only |
 | 2.5.4 Background modes | unjustified background modes | Gate: warns on UIBackgroundModes |
-| 3.1.1 In-App Purchase | digital goods sold outside IAP, no Restore | Spec gate + preflight: IAP library + restore + external payment scan |
+| 3.1.1 In-App Purchase | digital goods sold outside IAP, no Restore | Spec gate + preflight: IAP library (web-game: a Capacitor StoreKit plugin) + restore + external payment scan |
 | 3.1.2 Subscriptions | missing price/period/terms disclosure, no EULA link | Spec gate warning · terms page has subscription terms |
 | 4.0 Design | non-native feel, tiny tap targets, broken layouts | Playtest: overflow, tap-target size · Agent: visual review |
-| 4.2 Minimum functionality | thin apps, repackaged websites, web views | Spec gate: ≥3 MVP features + nativeValue · preflight warns on react-native-webview |
+| 4.2 Minimum functionality | thin apps, repackaged websites, web views | Spec gate: ≥3 MVP features + nativeValue · preflight warns on react-native-webview and **fails** a Capacitor/Cordova shell in an Expo app · **Exception `app.kind: "web-game"`** (AGENTS.md rule 4: a self-contained offline game in a Capacitor shell) with replacement checks: store-flavour marker, bundle scan (no remote URLs, `/api/`, WebSocket/EventSource/sendBeacon, forbidden playtest strings), playtest fails on any runtime request to another host, Preferences + Haptics linked, orientation lock, export compliance, privacy manifest, opaque binary icon, Game Center code + entitlement when declared, no `server.url` in the Capacitor config |
+| 4.7 HTML5 mini apps / games | HTML5 games *not embedded in the binary* | web-game bundles ship inside the binary; the bundle scan and runtime check prove nothing is downloaded |
 | 4.3 Spam | template clones | Agent: distinct concept, design and icon per app |
 | 4.8 Login services | social login without Sign in with Apple | Spec gate + preflight dependency check |
 | 5.1.1(i) Privacy policy | missing in metadata or in-app | Legal site + Settings screen link · Gate: URL match + in-app link |

@@ -17,6 +17,9 @@ Individual vs Organization: an Organization (D-U-N-S number) shows your company 
 App Store Connect → Users and Access → **Integrations → App Store Connect API** → Team Keys → `+`
 → name `app-farm`, access **App Manager** → download the `.p8` (only downloadable once).
 Note the **Key ID** and **Issuer ID**. Your **Team ID** is on developer.apple.com → Membership.
+Web games (`farm-capacitor-release`): Xcode's automatic signing on the runner creates the distribution certificate
+and profile with this key (cloud-managed certificates), which needs the key's access to be **Admin**. App Manager is
+enough for everything else (`farm-asc`, EAS). If you prefer, make a second Admin key only for that workflow.
 
 ## 3. Expo token
 expo.dev → Account settings → **Access tokens** → create `app-farm` (robot or personal token).
@@ -24,7 +27,7 @@ expo.dev → Account settings → **Access tokens** → create `app-farm` (robot
 ## 4. GitHub secrets (repo → Settings → Secrets and variables → Actions)
 | Secret | Value |
 |---|---|
-| `EXPO_TOKEN` | Expo access token |
+| `EXPO_TOKEN` | Expo access token (Expo apps only; web games don't use it) |
 | `ASC_KEY_ID` | API key ID |
 | `ASC_ISSUER_ID` | Issuer ID |
 | `ASC_PRIVATE_KEY` | full contents of the `.p8` file (including BEGIN/END lines) |

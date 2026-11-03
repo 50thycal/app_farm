@@ -2,15 +2,17 @@
  * Apple review preflight — every automatable check we know App Review (and App Store Connect's
  * upload validation) applies. FAIL = would be rejected or refused at upload. WARN = judgment call.
  */
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { appPaths, log, newestMtime, readJson, readJsonIf, run, walk, which, writeJson, writeText } from '../lib/util.ts';
-import { Checks, loadConfig, loadPipeline, validateFile } from '../lib/state.ts';
-import { DEVICES, PLACEHOLDER_RE, PREVIEW, SCREENSHOTS, type DeviceId } from '../lib/apple.ts';
+import { Checks, journeysFile, loadConfig, loadPipeline, validateFile } from '../lib/state.ts';
+import { PLACEHOLDER_RE, PREVIEW, SCREENSHOTS, deviceSpec, devicesFor, type DeviceId } from '../lib/apple.ts';
 import { specPolicyChecks } from './policy.ts';
 import { listingChecks, appPrivacyJson } from './listing.ts';
 import { PERMISSION_PLIST } from './scaffold.ts';
+import { webGamePreflight } from './preflight-webgame.ts';
+import type { Spec } from '../schemas/index.ts';
 
 /** Native modules → Info.plist purpose strings they require when linked. */
 const PACKAGE_PLIST: Record<string, string[]> = {
@@ -44,15 +46,94 @@ export async function preflight(slug: string, opts: { fast?: boolean } = {}) {
   const spec = validateFile('spec', P.spec);
   const listing = validateFile('listing', P.listing);
   const shots = validateFile('shots', P.shots);
-  const journeys = validateFile('journeys', P.journeys);
+  const journeys = validateFile('journeys', journeysFile(slug));
   for (const [n, v] of [['spec', spec], ['listing', listing], ['shots', shots], ['journeys', journeys]] as const)
     c.expect(v.ok, `input.${n}`, `${n} valid`, v.ok ? '' : `${n} invalid: ${v.errors.slice(0, 5).join('; ')}`);
   if (!spec.ok) return finish(slug, c);
   const S = spec.data;
   c.merge(specPolicyChecks(S));
 
+  if (S.app.kind === 'web-game') c.merge(await webGamePreflight(slug, S, cfg));
+  else if (!(await expoAppChecks(slug, S, c, opts))) return finish(slug, c);
+
+  // ------------------------------------------------------------ F. listing
+  if (listing.ok) c.merge(listingChecks(listing.data, S));
+
+  // ------------------------------------------------------------ G. screenshots + preview
+  const devices: DeviceId[] = devicesFor(S);
+  const landscape = S.app.orientation === 'landscape';
+  for (const dev of devices) {
+    const accepted = deviceSpec(dev, S.app.orientation).accepted;
+    const dir = path.join(P.screenshots, dev);
+    const files = existsSync(dir) ? readdirSync(dir).filter((f) => /\.(png|jpe?g)$/i.test(f)).sort() : [];
+    c.expect(files.length >= SCREENSHOTS.min && files.length <= SCREENSHOTS.max, `shots.${dev}.count`, `${dev}: ${files.length} screenshots`,
+      `${dev}: ${files.length} screenshots (need ${SCREENSHOTS.min}–${SCREENSHOTS.max})`);
+    if (files.length && files.length < SCREENSHOTS.recommendedMin) c.warn(`shots.${dev}.few`, `Only ${files.length} screenshots — 3+ convert better`);
+    for (const f of files) {
+      const m = await sharp(path.join(dir, f)).metadata();
+      // Portrait apps keep the historical rule (either orientation of a portrait size); landscape apps need landscape sizes.
+      const okSize = accepted.some(([w, h]) => (m.width === w && m.height === h) || (!landscape && m.width === h && m.height === w));
+      c.expect(okSize, `shots.${dev}.${f}.size`, `${f} ${m.width}×${m.height}`, `${f} is ${m.width}×${m.height}; accepted${landscape ? ' (landscape)' : ''}: ${accepted.map((a) => a.join('×')).join(', ')}`);
+      c.expect(!m.hasAlpha, `shots.${dev}.${f}.alpha`, `${f} opaque`, `${f} has alpha`);
+    }
+    const raw = existsSync(path.join(P.rawNative)) && readdirSync(P.rawNative).some((f) => f.endsWith('.png'));
+    if (!raw) c.warn(`shots.${dev}.source`, 'Screenshots were captured from the web build. Recapture on the iOS Simulator before submitting (farm-native-qa workflow or mac/native-qa.sh) so they show true native rendering', '2.3.3');
+  }
+  const prev = path.join(P.previews, 'iphone-6.9', 'preview.mp4');
+  if (!existsSync(prev)) c.warn('preview.missing', 'No app preview video (optional, but improves conversion)');
+  else if (!which('ffprobe')) c.warn('preview.ffprobe', 'ffprobe missing; cannot validate preview');
+  else {
+    const info = await ffprobe(prev);
+    const v = info?.streams?.find((s: any) => s.codec_type === 'video');
+    const a = info?.streams?.find((s: any) => s.codec_type === 'audio');
+    const dur = Number(info?.format?.duration ?? 0);
+    const [num, den] = String(v?.r_frame_rate ?? '0/1').split('/').map(Number);
+    const [pw, ph] = deviceSpec('iphone-6.9', S.app.orientation).preview;
+    c.expect(dur >= PREVIEW.minSec && dur <= PREVIEW.maxSec, 'preview.duration', `preview ${dur.toFixed(1)}s`, `preview is ${dur.toFixed(1)}s (15–30s)`);
+    c.expect(v?.width === pw && v?.height === ph, 'preview.size', `preview ${v?.width}×${v?.height}`, `preview ${v?.width}×${v?.height} (need ${pw}×${ph})`);
+    c.expect(num / den <= 30.01, 'preview.fps', `preview ${(num / den).toFixed(0)} fps`, 'preview > 30 fps');
+    c.expect(v?.codec_name === 'h264', 'preview.codec', 'preview H.264', `codec ${v?.codec_name}`);
+    c.expect(!!a, 'preview.audio', 'preview has audio track', 'preview has no audio track (App Store Connect may reject it)', undefined, 'warn');
+    c.expect(statSync(prev).size < PREVIEW.maxBytes, 'preview.bytes', 'preview < 500MB', 'preview too large');
+    // A frame that is mostly one flat color (e.g. the recording only filled a corner) is not the app in use.
+    const framePng = path.join(P.dir, '.farm-tmp', 'preview-5s.png');
+    mkdirSync(path.dirname(framePng), { recursive: true });
+    const frame = await run('ffmpeg', ['-v', 'error', '-y', '-ss', '5', '-i', prev, '-frames:v', '1', framePng], { quiet: true });
+    if (frame.code === 0 && existsSync(framePng)) {
+      const png = readFileSync(framePng);
+      const m = await sharp(png).metadata();
+      // stats() reads the input, not the extract: materialize the quarter first.
+      const quarter = await sharp(png).extract({ left: Math.floor(m.width! / 2), top: Math.floor(m.height! / 2), width: Math.floor(m.width! / 2), height: Math.floor(m.height! / 2) }).png().toBuffer();
+      const q = await sharp(quarter).stats();
+      const flat = q.channels.slice(0, 3).every((ch) => ch.stdev < 1.5);
+      c.expect(!flat, 'preview.content', 'preview frame is filled', 'preview frame at 5 s: the bottom-right quarter is one flat color — the recording does not fill the frame (re-run assets)', '2.3.4', 'warn');
+    }
+  }
+
+  // ------------------------------------------------------------ H. privacy label + site
+  const ap = readJsonIf(P.appPrivacy);
+  c.expect(!!ap && JSON.stringify(ap) === JSON.stringify(appPrivacyJson(S)), 'privacy.label', 'App Privacy answers match spec',
+    'store/app_privacy.json missing or stale — run: farm run <slug> listing-export', '5.1.2');
+  for (const f of ['privacy.html', 'terms.html', 'support.html', 'index.html'])
+    c.expect(existsSync(path.join(P.site, f)), `site.${f}`, `site/${f}`, `site/${f} missing — run: farm run <slug> legal`);
+  if (/example|your-domain|TODO/i.test(cfg.legal.baseUrl) || !cfg.legal.baseUrl.startsWith('https://'))
+    c.fail('site.base-url', `farm.config.json legal.baseUrl "${cfg.legal.baseUrl}" is not a real https URL`);
+
+  // ------------------------------------------------------------ I. release readiness (non-blocking for local gate)
+  for (const k of ['legalName', 'firstName', 'lastName', 'email', 'phone'] as const)
+    c.expect(!!cfg.owner[k], `owner.${k}`, `owner.${k} set`, `farm.config.json owner.${k} empty (needed for App Review contact)`, undefined, 'warn');
+  c.expect(!!cfg.apple.teamId, 'apple.team', 'Apple Team ID set', 'farm.config.json apple.teamId empty', undefined, 'warn');
+  c.expect(!!pl.release.ascAppId, 'release.asc-app', `App Store Connect app ${pl.release.ascAppId}`,
+    'No App Store Connect app id yet — create the app record (docs/HUMAN_STEPS.md) then `farm set <slug> ascAppId <id>`', undefined, 'warn');
+
+  return finish(slug, c);
+}
+
+/** Sections B–E for Expo apps: app config, icon, code scan, playtest freshness. false = stop (no app.json). */
+async function expoAppChecks(slug: string, S: Spec, c: Checks, opts: { fast?: boolean }): Promise<boolean> {
+  const P = appPaths(slug);
   // ------------------------------------------------------------ B. app config
-  if (!existsSync(P.appJson)) { c.fail('config.app-json', 'app/app.json missing — run scaffold'); return finish(slug, c); }
+  if (!existsSync(P.appJson)) { c.fail('config.app-json', 'app/app.json missing — run scaffold'); return false; }
   const pkg = readJson(path.join(P.app, 'package.json'));
   const deps = { ...pkg.dependencies, ...pkg.devDependencies } as Record<string, string>;
   let expo: any = readJson(P.appJson).expo;
@@ -90,6 +171,9 @@ export async function preflight(slug: string, opts: { fast?: boolean } = {}) {
     if (GENERIC_PURPOSE.test(String(plist[k]))) c.warn(`config.plist.${k}`, `${k} is generic ("${plist[k]}")`, '5.1.1(ii)');
 
   if (deps['react-native-webview']) c.warn('code.webview', 'react-native-webview is a dependency — apps that are mostly web views are rejected', '4.2 / 4.2.2');
+  // AGENTS.md rule 4: a web-view shell is allowed only as app.kind "web-game" (with its replacement checks).
+  const shell = ['@capacitor/core', '@capacitor/ios', 'cordova-ios'].filter((d) => deps[d]);
+  if (shell.length) c.fail('code.webview-shell', `${shell.join(', ')} in an Expo app — a web-view shell is only allowed for app.kind "web-game" (AGENTS.md rule 4)`, '4.2');
 
   // ------------------------------------------------------------ C. icon
   for (const [id, f] of [['store', P.iconPng], ['app', path.join(P.app, 'assets', 'images', 'icon.png')]] as const) {
@@ -141,61 +225,7 @@ export async function preflight(slug: string, opts: { fast?: boolean } = {}) {
     c.expect(Date.parse(pt.at) >= srcNewest - 1000, 'playtest.fresh', 'Playtest is newer than the code', 'Code changed after the last playtest — re-run it');
   }
 
-  // ------------------------------------------------------------ F. listing
-  if (listing.ok) c.merge(listingChecks(listing.data, S));
-
-  // ------------------------------------------------------------ G. screenshots + preview
-  const devices: DeviceId[] = S.app.supportsTablet ? ['iphone-6.9', 'ipad-13'] : ['iphone-6.9'];
-  for (const dev of devices) {
-    const dir = path.join(P.screenshots, dev);
-    const files = existsSync(dir) ? readdirSync(dir).filter((f) => /\.(png|jpe?g)$/i.test(f)).sort() : [];
-    c.expect(files.length >= SCREENSHOTS.min && files.length <= SCREENSHOTS.max, `shots.${dev}.count`, `${dev}: ${files.length} screenshots`,
-      `${dev}: ${files.length} screenshots (need ${SCREENSHOTS.min}–${SCREENSHOTS.max})`);
-    if (files.length && files.length < SCREENSHOTS.recommendedMin) c.warn(`shots.${dev}.few`, `Only ${files.length} screenshots — 3+ convert better`);
-    for (const f of files) {
-      const m = await sharp(path.join(dir, f)).metadata();
-      const okSize = DEVICES[dev].accepted.some(([w, h]) => (m.width === w && m.height === h) || (m.width === h && m.height === w));
-      c.expect(okSize, `shots.${dev}.${f}.size`, `${f} ${m.width}×${m.height}`, `${f} is ${m.width}×${m.height}; accepted: ${DEVICES[dev].accepted.map((a) => a.join('×')).join(', ')}`);
-      c.expect(!m.hasAlpha, `shots.${dev}.${f}.alpha`, `${f} opaque`, `${f} has alpha`);
-    }
-    const raw = existsSync(path.join(P.rawNative)) && readdirSync(P.rawNative).some((f) => f.endsWith('.png'));
-    if (!raw) c.warn(`shots.${dev}.source`, 'Screenshots were captured from the web build. Recapture on the iOS Simulator before submitting (farm-native-qa workflow or mac/native-qa.sh) so they show true native rendering', '2.3.3');
-  }
-  const prev = path.join(P.previews, 'iphone-6.9', 'preview.mp4');
-  if (!existsSync(prev)) c.warn('preview.missing', 'No app preview video (optional, but improves conversion)');
-  else if (!which('ffprobe')) c.warn('preview.ffprobe', 'ffprobe missing; cannot validate preview');
-  else {
-    const info = await ffprobe(prev);
-    const v = info?.streams?.find((s: any) => s.codec_type === 'video');
-    const a = info?.streams?.find((s: any) => s.codec_type === 'audio');
-    const dur = Number(info?.format?.duration ?? 0);
-    const [num, den] = String(v?.r_frame_rate ?? '0/1').split('/').map(Number);
-    const [pw, ph] = DEVICES['iphone-6.9'].preview;
-    c.expect(dur >= PREVIEW.minSec && dur <= PREVIEW.maxSec, 'preview.duration', `preview ${dur.toFixed(1)}s`, `preview is ${dur.toFixed(1)}s (15–30s)`);
-    c.expect(v?.width === pw && v?.height === ph, 'preview.size', `preview ${v?.width}×${v?.height}`, `preview ${v?.width}×${v?.height} (need ${pw}×${ph})`);
-    c.expect(num / den <= 30.01, 'preview.fps', `preview ${(num / den).toFixed(0)} fps`, 'preview > 30 fps');
-    c.expect(v?.codec_name === 'h264', 'preview.codec', 'preview H.264', `codec ${v?.codec_name}`);
-    c.expect(!!a, 'preview.audio', 'preview has audio track', 'preview has no audio track (App Store Connect may reject it)', undefined, 'warn');
-    c.expect(statSync(prev).size < PREVIEW.maxBytes, 'preview.bytes', 'preview < 500MB', 'preview too large');
-  }
-
-  // ------------------------------------------------------------ H. privacy label + site
-  const ap = readJsonIf(P.appPrivacy);
-  c.expect(!!ap && JSON.stringify(ap) === JSON.stringify(appPrivacyJson(S)), 'privacy.label', 'App Privacy answers match spec',
-    'store/app_privacy.json missing or stale — run: farm run <slug> listing-export', '5.1.2');
-  for (const f of ['privacy.html', 'terms.html', 'support.html', 'index.html'])
-    c.expect(existsSync(path.join(P.site, f)), `site.${f}`, `site/${f}`, `site/${f} missing — run: farm run <slug> legal`);
-  if (/example|your-domain|TODO/i.test(cfg.legal.baseUrl) || !cfg.legal.baseUrl.startsWith('https://'))
-    c.fail('site.base-url', `farm.config.json legal.baseUrl "${cfg.legal.baseUrl}" is not a real https URL`);
-
-  // ------------------------------------------------------------ I. release readiness (non-blocking for local gate)
-  for (const k of ['legalName', 'firstName', 'lastName', 'email', 'phone'] as const)
-    c.expect(!!cfg.owner[k], `owner.${k}`, `owner.${k} set`, `farm.config.json owner.${k} empty (needed for App Review contact)`, undefined, 'warn');
-  c.expect(!!cfg.apple.teamId, 'apple.team', 'Apple Team ID set', 'farm.config.json apple.teamId empty', undefined, 'warn');
-  c.expect(!!pl.release.ascAppId, 'release.asc-app', `App Store Connect app ${pl.release.ascAppId}`,
-    'No App Store Connect app id yet — create the app record (docs/HUMAN_STEPS.md) then `farm set <slug> ascAppId <id>`', undefined, 'warn');
-
-  return finish(slug, c);
+  return true;
 }
 
 function finish(slug: string, c: Checks) {

@@ -1,0 +1,340 @@
+{
+  "app": {
+    "kind": "web-game",
+    "gameCenter": true,
+    "name": "Straitwatch",
+    "subtitle": "Convoy defense strategy",
+    "slug": "straitwatch",
+    "bundleId": "com.appfarm.straitwatch",
+    "scheme": "straitwatch",
+    "version": "1.0.0",
+    "primaryCategory": "GAMES",
+    "supportsTablet": false,
+    "orientation": "landscape",
+    "userInterfaceStyle": "dark",
+    "locale": "en-US"
+  },
+  "source": {
+    "type": "repo",
+    "value": "50thycal/td_cargo_ship",
+    "ref": "claude/mobile-game-predator-prey-tu1t5k",
+    "installCmd": "npm ci",
+    "buildCmd": "npm run build:store",
+    "webDir": "dist",
+    "entry": "index.html",
+    "tests": [
+      {
+        "id": "unit",
+        "cmd": "npm test",
+        "timeoutSec": 900
+      },
+      {
+        "id": "e2e-v3",
+        "cmd": "node e2e/v3.mjs",
+        "server": true,
+        "timeoutSec": 1200
+      },
+      {
+        "id": "e2e-v3-audio",
+        "cmd": "node e2e/v3-audio.mjs",
+        "server": true,
+        "timeoutSec": 900
+      },
+      {
+        "id": "e2e-v3-store",
+        "cmd": "npm run build:store && { ./node_modules/.bin/vite preview --port 4184 --strictPort >/dev/null 2>&1 & P=$!; for i in $(seq 60); do curl -sf http://localhost:4184/ >/dev/null && break; sleep 0.5; done; BASE_URL=http://localhost:4184 node e2e/v3-store.mjs; S=$?; kill $P; exit $S; }",
+        "timeoutSec": 900
+      }
+    ],
+    "previewServer": {
+      "buildCmd": "npm run build",
+      "cmd": "npx vite preview --port 4183 --strictPort",
+      "url": "http://localhost:4183"
+    },
+    "forbid": [
+      "/api/playlog",
+      "Download log",
+      "Developer mode",
+      "Play V2 →"
+    ],
+    "ios": {
+      "project": "ios/App/App.xcodeproj",
+      "scheme": "App",
+      "appDir": "ios/App/App"
+    }
+  },
+  "pitch": {
+    "oneLiner": "Guard merchant convoys through a contested strait: tap to intercept drones, missiles and jets before they hit.",
+    "audience": "Strategy and arcade players who like Missile Command, tower defense and roguelite runs, in short landscape sessions.",
+    "coreLoop": "Choose a map and one Armory upgrade per bay, defend ten waves by tapping threats, grab weapon drops and fire them, draft a weapon after each wave, and win Armory cards for the next run.",
+    "differentiator": "Twenty hand-built maps that each add one idea, twelve weapons that each answer a kind of attack, fully offline with no ads."
+  },
+  "features": [
+    {
+      "id": "defend",
+      "title": "Tap to intercept",
+      "description": "Ships cross the strait left to right while drones, ballistic and guided missiles, jets and boats attack from the shore. Tap a threat to fire the carrier's gun at it; a rack of rounds reloads over time. Losing too many ships ends the run.",
+      "priority": "mvp",
+      "acceptance": [
+        "A tap fires an interceptor at the threat or point tapped",
+        "An empty rack dry-clicks until it reloads",
+        "Ships lost are counted in the HUD; the run ends at the loss limit",
+        "Ten waves clear a map"
+      ]
+    },
+    {
+      "id": "maps",
+      "title": "20 maps in four chapters",
+      "description": "Home Waters, The Narrows, Dark Water and Open War: five maps each, unlocked in order by clearing the one before. Each map after the first five adds one new idea: a bending lane, an allied radar, a supertanker, single file, lock gates, shore batteries, drifting mines, oil rigs, night, a battleship, fast boats, a fork, two-way traffic, the tide and the Citadel.",
+      "priority": "mvp",
+      "acceptance": [
+        "Menu shows four chapter tabs and the maps in each",
+        "Locked maps show a lock",
+        "Clearing a map unlocks the next",
+        "Each map keeps its best score and wave"
+      ]
+    },
+    {
+      "id": "weapons",
+      "title": "Twelve weapons",
+      "description": "After each wave the player drafts one of three weapons (Flak Cannon, Seeker Pod, Aegis Launchers, Gravity Well, Air Strike, Railgun, Tesla Arc, Shrapnel Shell, Frigate Escort, Thermobaric Shell, Scattergun, Boomerang). Held weapons drop as pickups from kills; tapping one loads the gun with it for 15 seconds. Three held at once, three levels each; level 3 is MAX with a new name.",
+      "priority": "mvp",
+      "acceptance": [
+        "The draft offers three choices after each wave",
+        "A weapon pickup loads the gun for 15 s",
+        "A held weapon levels up to MAX"
+      ]
+    },
+    {
+      "id": "armory",
+      "title": "The Armory",
+      "description": "Eleven upgrade cards in three bays (Gun, Hull, Supply), won at random at the end of every run; a duplicate adds a level. Before each run the player equips one card from each bay.",
+      "priority": "mvp",
+      "acceptance": [
+        "Cards won after a run are added to the Armory",
+        "One card per bay can be equipped",
+        "Cards not won yet are greyed out"
+      ]
+    },
+    {
+      "id": "endless",
+      "title": "Endless mode",
+      "description": "After clearing a map the run can continue into endless waves that keep growing.",
+      "priority": "mvp",
+      "acceptance": [
+        "The result screen of a clear offers Endless mode",
+        "Endless waves grow past wave 10"
+      ]
+    },
+    {
+      "id": "game-center",
+      "title": "Game Center",
+      "description": "A best-score leaderboard for every map and achievements for milestones, through Apple Game Center.",
+      "priority": "mvp",
+      "acceptance": [
+        "Signed-in players post their best score per map",
+        "Achievements unlock on the matching events",
+        "Playing without Game Center works normally"
+      ]
+    },
+    {
+      "id": "unlock",
+      "title": "Full game unlock",
+      "description": "Chapter 1 (five maps) is free. One non-consumable in-app purchase unlocks chapters 2–4. Settings has Restore Purchases.",
+      "priority": "mvp",
+      "acceptance": [
+        "Chapter 2–4 maps show the unlock offer when tapped without the purchase",
+        "The purchase goes through StoreKit",
+        "Restore Purchases restores the unlock on a new device"
+      ]
+    },
+    {
+      "id": "settings",
+      "title": "Settings",
+      "description": "Sound and music volume, haptics on/off, version, credits (CC0 sounds, MIT icons), privacy policy link, Restore Purchases and Reset progress (with a confirmation).",
+      "priority": "mvp",
+      "acceptance": [
+        "Privacy policy link opens the policy",
+        "Reset progress asks for confirmation",
+        "Version is shown"
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "id": "menu",
+      "route": "/",
+      "file": "src/v3/ui/app.ts",
+      "title": "Menu",
+      "purpose": "Title, chapter tabs and map cards, Armory and Settings buttons",
+      "features": [
+        "maps",
+        "unlock"
+      ]
+    },
+    {
+      "id": "armory",
+      "route": "/",
+      "file": "src/v3/ui/app.ts",
+      "title": "Armory",
+      "purpose": "Upgrade cards by bay; equip one per bay",
+      "features": [
+        "armory"
+      ]
+    },
+    {
+      "id": "loadout",
+      "route": "/",
+      "file": "src/v3/ui/app.ts",
+      "title": "Briefing",
+      "purpose": "The map briefing and the run's loadout",
+      "features": [
+        "armory"
+      ]
+    },
+    {
+      "id": "game",
+      "route": "/",
+      "file": "src/v3/ui/render.ts",
+      "title": "Game",
+      "purpose": "The strait, the convoy, threats and the HUD",
+      "features": [
+        "defend",
+        "weapons"
+      ]
+    },
+    {
+      "id": "draft",
+      "route": "/",
+      "file": "src/v3/ui/app.ts",
+      "title": "Draft",
+      "purpose": "Pick one of three weapons after a wave",
+      "features": [
+        "weapons"
+      ]
+    },
+    {
+      "id": "result",
+      "route": "/",
+      "file": "src/v3/ui/app.ts",
+      "title": "Result",
+      "purpose": "Score, cards won, next map or endless",
+      "features": [
+        "endless",
+        "armory"
+      ]
+    },
+    {
+      "id": "settings",
+      "route": "/",
+      "file": "src/v3/ui/app.ts",
+      "title": "Settings",
+      "purpose": "Audio, haptics, version, credits, privacy, restore, reset",
+      "features": [
+        "settings",
+        "unlock"
+      ]
+    }
+  ],
+  "journeys": [
+    {
+      "id": "first-run",
+      "title": "Start the first map",
+      "steps": [
+        "Open the app",
+        "Tap The Strait",
+        "Tap Start on the briefing",
+        "The wave starts and the HUD shows wave 1/10"
+      ]
+    },
+    {
+      "id": "armory",
+      "title": "Equip an Armory card",
+      "steps": [
+        "Open the menu with cards won",
+        "Open the Armory",
+        "Tap a won card",
+        "It shows as equipped"
+      ]
+    },
+    {
+      "id": "settings-legal",
+      "title": "Settings shows privacy, version and the unlock",
+      "steps": [
+        "Open Settings",
+        "See the privacy policy link, the version and the full-game unlock",
+        "Tap Unlock: the sheet lists chapters 2–4 (Unlock + Restore on device)"
+      ]
+    }
+  ],
+  "data": {
+    "storage": "local",
+    "backend": null,
+    "entities": [
+      {
+        "name": "Progress",
+        "fields": [
+          "unlocked",
+          "best per map {score, wave}",
+          "cards",
+          "armory levels",
+          "equipped per bay",
+          "cleared maps"
+        ]
+      },
+      {
+        "name": "Settings",
+        "fields": [
+          "audio volumes",
+          "haptics",
+          "tips seen"
+        ]
+      }
+    ]
+  },
+  "accounts": {
+    "required": false,
+    "methods": [],
+    "deletionInApp": false
+  },
+  "monetization": {
+    "model": "freemium-iap",
+    "products": [
+      {
+        "productId": "com.appfarm.straitwatch.fullgame",
+        "type": "non-consumable",
+        "price": "price tier chosen by the owner in App Store Connect",
+        "description": "Unlocks chapters 2–4 (15 maps): The Narrows, Dark Water and Open War."
+      }
+    ],
+    "restorePurchases": true
+  },
+  "permissions": [],
+  "privacy": {
+    "collectsData": false,
+    "tracking": false,
+    "thirdPartySdks": [],
+    "dataTypes": []
+  },
+  "content": {
+    "userGenerated": false,
+    "externalLinks": false,
+    "regulated": [
+      "none"
+    ]
+  },
+  "design": {
+    "primaryColor": "#7FE9FF",
+    "backgroundColor": "#070D12",
+    "textColor": "#F4F1E8",
+    "tone": "Calm naval command console: dark navy water, cyan radar accents, warm off-white type, red for danger"
+  },
+  "nativeValue": [
+    "The complete game is bundled in the app and plays fully offline: nothing is loaded from the network",
+    "Game Center leaderboards for every map and achievements",
+    "Haptic feedback on kills, hits and wins (Core Haptics via Capacitor Haptics)",
+    "Progress saved in native storage (UserDefaults via Capacitor Preferences), so iOS never evicts it",
+    "StoreKit in-app purchase with Restore Purchases",
+    "Landscape-locked full-screen app with a native launch screen, auto-pause when backgrounded"
+  ]
+}

@@ -33,6 +33,12 @@ export function appPaths(slug: string) {
     appPrivacy: path.join(dir, 'store', 'app_privacy.json'),
     fastlaneMeta: path.join(dir, 'store', 'fastlane', 'metadata'),
     site: path.join(dir, 'site'),
+    /** web-game: checkout of the game repo (spec.source), not committed. */
+    source: path.join(dir, 'source'),
+    /** web-game: snapshot of the last store-flavour build (served for captures, scanned by preflight). */
+    storeWeb: path.join(dir, '.farm-tmp', 'store-web'),
+    /** web-game: farm-side smoke journeys against the store build. */
+    webJourneys: path.join(dir, 'e2e', 'journeys.json'),
     reports: path.join(dir, 'reports'),
     tmp: path.join(dir, '.farm-tmp'),
   };
@@ -116,7 +122,7 @@ export function chromiumPath(): string | undefined {
   const base = process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/pw-browsers';
   if (existsSync(base)) {
     for (const d of readdirSync(base).filter((n) => /^chromium-\d+$/.test(n)).sort().reverse()) {
-      for (const rel of ['chrome-linux/chrome', 'chrome-mac/Chromium.app/Contents/MacOS/Chromium', 'chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium']) {
+      for (const rel of ['chrome-linux/chrome', 'chrome-linux64/chrome', 'chrome-mac/Chromium.app/Contents/MacOS/Chromium', 'chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium']) {
         const p = path.join(base, d, rel);
         if (existsSync(p)) return p;
       }

@@ -9,8 +9,10 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { appPaths, ensureDir, log, run, which } from '../lib/util.ts';
 import { validateFile } from '../lib/state.ts';
-import { DEVICES, PREVIEW, type DeviceId } from '../lib/apple.ts';
-import { exportWeb, launch, phoneContext, runSteps, serveStatic } from '../lib/web.ts';
+import { DEVICES, PREVIEW, deviceSpec, devicesFor, type DeviceId, type DeviceSpec, type Orientation } from '../lib/apple.ts';
+import { exportWeb, launch, loadHooks, phoneContext, runSteps, serveStatic, type StepHooks } from '../lib/web.ts';
+import { storeBundle } from '../lib/webgame.ts';
+import type { BrowserContext } from 'playwright-core';
 import type { Listing, Shots } from '../schemas/index.ts';
 
 // ---------------------------------------------------------------- icon
@@ -27,6 +29,10 @@ export async function makeIcons(slug: string) {
 
   // App Store icon: 1024×1024, no alpha, no rounded corners (Apple masks it).
   await render(1024).flatten({ background: bg }).removeAlpha().png().toFile(P.iconPng);
+  if (spec.ok && spec.data.app.kind === 'web-game') {
+    // The binary's icon lives in the game repo's asset catalog (preflight compares it with this one).
+    return log.ok(`icon → ${path.relative(process.cwd(), P.iconPng)}`);
+  }
   const img = path.join(P.app, 'assets', 'images');
   ensureDir(img);
   copyFileSync(P.iconPng, path.join(img, 'icon.png'));
@@ -54,8 +60,9 @@ const escHtml = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<'
 
 function frameHtml(o: {
   device: DeviceId; rawDataUri: string; synthetic: boolean; topColor: string; bottomColor: string;
-  caption: string; subcaption?: string; brand: Listing['brand'];
+  caption: string; subcaption?: string; brand: Listing['brand']; orientation?: Orientation;
 }) {
+  if (o.orientation === 'landscape') return frameHtmlLandscape(o);
   const d = DEVICES[o.device];
   const [W, H] = d.out;
   const f = d.frame;
@@ -92,23 +99,75 @@ function frameHtml(o: {
   </body></html>`;
 }
 
+/**
+ * Landscape marketing frame: caption band across the top, a landscape device below it. iOS hides the status
+ * bar in landscape and games draw edge to edge, so the capture fills the whole screen (no drawn status bar).
+ */
+function frameHtmlLandscape(o: {
+  device: DeviceId; rawDataUri: string; topColor: string; caption: string; subcaption?: string; brand: Listing['brand'];
+}) {
+  const d = deviceSpec(o.device, 'landscape');
+  const [W, H] = d.out;
+  const f = d.frame;
+  const screenW = f.deviceW - 2 * f.bezel;
+  const screenH = Math.round((screenW * d.viewport[1]) / d.viewport[0]);
+  const capSize = Math.round(H * 0.082);
+  const bgEnd = o.brand.backgroundEnd ?? o.brand.background;
+  return `<!doctype html><html><head><meta charset="utf-8"><style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:${W}px;height:${H}px;overflow:hidden}
+  body{background:linear-gradient(170deg, ${o.brand.background} 0%, ${bgEnd} 100%);font-family:${o.brand.font};color:${o.brand.text};-webkit-font-smoothing:antialiased}
+  .cap{position:absolute;top:0;left:${Math.round(W * 0.06)}px;right:${Math.round(W * 0.06)}px;height:${f.top}px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  h1{font-size:${capSize}px;line-height:1.04;font-weight:800;letter-spacing:-0.02em;white-space:nowrap}
+  h1 em{font-style:normal;color:${o.brand.accent}}
+  p{margin-top:${Math.round(capSize * 0.2)}px;font-size:${Math.round(capSize * 0.44)}px;font-weight:500;opacity:.8;line-height:1.2;white-space:nowrap}
+  .device{position:absolute;left:${(W - f.deviceW) / 2}px;top:${f.top}px;width:${f.deviceW}px;padding:${f.bezel}px;border-radius:${f.radius}px;background:#0b0b0f;box-shadow:0 40px 120px rgba(0,0,0,.45), inset 0 0 0 4px #2a2a30}
+  .screen{position:relative;width:${screenW}px;height:${screenH}px;border-radius:${f.radius - f.bezel}px;overflow:hidden;background:${o.topColor}}
+  .full{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  </style></head><body>
+  <div class="cap"><h1>${escHtml(o.caption).replace(/\*(.+?)\*/g, '<em>$1</em>')}</h1>${o.subcaption ? `<p>${escHtml(o.subcaption)}</p>` : ''}</div>
+  <div class="device"><div class="screen"><img class="full" src="${o.rawDataUri}"></div></div>
+  </body></html>`;
+}
+
+/** Seed localStorage once per browser context (before the app's first script runs), e.g. a game's demo save. */
+export async function seedStorage(ctx: BrowserContext, seed?: Record<string, unknown>) {
+  if (!seed || !Object.keys(seed).length) return;
+  const items = Object.fromEntries(Object.entries(seed).map(([k, v]) => [k, typeof v === 'string' ? v : JSON.stringify(v)]));
+  await ctx.addInitScript((it: Record<string, string>) => {
+    try {
+      if (sessionStorage.getItem('__farmSeeded')) return;
+      for (const [k, v] of Object.entries(it)) localStorage.setItem(k, v);
+      sessionStorage.setItem('__farmSeeded', '1');
+    } catch { /* storage blocked: the app starts fresh */ }
+  }, items);
+}
+
 /** Capture raw screens from the web build. Content viewport excludes status bar + home indicator (drawn by the frame). */
-export async function captureWebRaw(slug: string, shots: Shots, devices: DeviceId[], baseUrl: string) {
+export async function captureWebRaw(slug: string, shots: Shots, devices: DeviceId[], baseUrl: string, orientation: Orientation = 'portrait', hooks?: StepHooks) {
   const P = appPaths(slug);
   const browser = await launch();
   try {
     for (const dev of devices) {
-      const d = DEVICES[dev];
+      const d = deviceSpec(dev, orientation);
       const dir = ensureDir(path.join(P.rawWeb, dev));
       for (const scene of shots.scenes) {
         const ctx = await phoneContext(browser, baseUrl, {
           width: d.viewport[0], height: d.viewport[1] - d.statusPt - d.homePt, dpr: d.dpr,
         });
+        await seedStorage(ctx, scene.seed);
         const page = await ctx.newPage();
         try {
-          await runSteps(page, baseUrl, scene.steps, { demo: scene.demo, stepDelayMs: 400 });
-          await page.waitForTimeout(700);
-          await page.screenshot({ path: path.join(dir, `${scene.id}.png`) });
+          // A {screenshot} step captures at that exact moment (e.g. mid-burst in a game); otherwise after the steps.
+          let shot = false;
+          await runSteps(page, baseUrl, scene.steps, {
+            demo: scene.demo, stepDelayMs: 400, hooks,
+            onScreenshot: async (_name, p) => { if (!shot) { await p.screenshot({ path: path.join(dir, `${scene.id}.png`) }); shot = true; } },
+          });
+          if (!shot) {
+            await page.waitForTimeout(700);
+            await page.screenshot({ path: path.join(dir, `${scene.id}.png`) });
+          }
           log.ok(`raw ${dev}/${scene.id}`);
         } catch (e) {
           throw new Error(`scene "${scene.id}" (${dev}) failed: ${(e as Error).message}`);
@@ -122,12 +181,12 @@ export async function captureWebRaw(slug: string, shots: Shots, devices: DeviceI
   }
 }
 
-export async function composeScreenshots(slug: string, shots: Shots, listing: Listing, devices: DeviceId[]) {
+export async function composeScreenshots(slug: string, shots: Shots, listing: Listing, devices: DeviceId[], orientation: Orientation = 'portrait') {
   const P = appPaths(slug);
   const browser = await launch();
   try {
     for (const dev of devices) {
-      const d = DEVICES[dev];
+      const d = deviceSpec(dev, orientation);
       const outDir = path.join(P.screenshots, dev);
       rmSync(outDir, { recursive: true, force: true });
       ensureDir(outDir);
@@ -141,7 +200,7 @@ export async function composeScreenshots(slug: string, shots: Shots, listing: Li
         const raw = readFileSync(src);
         const synthetic = src.includes(`${path.sep}web${path.sep}`);
         const html = frameHtml({
-          device: dev, synthetic, caption: scene.caption, subcaption: scene.subcaption, brand: listing.brand,
+          device: dev, synthetic, caption: scene.caption, subcaption: scene.subcaption, brand: listing.brand, orientation,
           rawDataUri: `data:image/png;base64,${raw.toString('base64')}`,
           topColor: await edgeColor(raw, 'top'), bottomColor: await edgeColor(raw, 'bottom'),
         });
@@ -161,10 +220,10 @@ export async function composeScreenshots(slug: string, shots: Shots, listing: Li
 }
 
 // ---------------------------------------------------------------- preview video
-export async function recordWebPreview(slug: string, shots: Shots, baseUrl: string, dev: DeviceId = 'iphone-6.9') {
+export async function recordWebPreview(slug: string, shots: Shots, baseUrl: string, dev: DeviceId = 'iphone-6.9', orientation: Orientation = 'portrait', hooks?: StepHooks) {
   const P = appPaths(slug);
   if (!which('ffmpeg')) throw new Error('ffmpeg not found (brew install ffmpeg / apt install ffmpeg)');
-  const d = DEVICES[dev];
+  const d = deviceSpec(dev, orientation);
   const [vw, vh] = d.preview;
   const vidDir = ensureDir(path.join(P.rawWeb, '_video'));
   for (const f of readdirSync(vidDir)) rmSync(path.join(vidDir, f), { force: true });
@@ -173,12 +232,15 @@ export async function recordWebPreview(slug: string, shots: Shots, baseUrl: stri
   const t0 = Date.now();
   let t1 = 0;
   try {
-    const ctx = await phoneContext(browser, baseUrl, { width: vw / 2, height: vh / 2, dpr: 2, video: { dir: vidDir, size: { width: vw, height: vh } } });
+    // Record at the CSS viewport size: Playwright does not upscale into a larger `size` (it pads the frame, which
+    // left 3/4 of earlier previews gray). ffmpeg scales to the App Preview size below.
+    const ctx = await phoneContext(browser, baseUrl, { width: vw / 2, height: vh / 2, dpr: 2, video: { dir: vidDir, size: { width: Math.round(vw / 2), height: Math.round(vh / 2) } } });
+    await seedStorage(ctx, shots.preview.seed);
     const page = await ctx.newPage();
     const [first, ...rest] = shots.preview.steps;
-    await runSteps(page, baseUrl, [first], { demo: true, stepDelayMs: 0 });
+    await runSteps(page, baseUrl, [first], { demo: true, stepDelayMs: 0, hooks });
     t1 = Date.now();
-    await runSteps(page, baseUrl, rest, { demo: false, stepDelayMs: shots.preview.stepDelayMs, smooth: true });
+    await runSteps(page, baseUrl, rest, { demo: false, stepDelayMs: shots.preview.stepDelayMs, smooth: true, hooks });
     await page.waitForTimeout(1200);
     await ctx.close(); // flushes the video
   } finally {
@@ -206,9 +268,10 @@ export async function recordWebPreview(slug: string, shots: Shots, baseUrl: stri
 }
 
 /** Re-encode a native simulator recording (simctl recordVideo .mov) into an App Preview. */
-export async function encodeNativePreview(slug: string, input: string, dev: DeviceId = 'iphone-6.9') {
+export async function encodeNativePreview(slug: string, input: string, dev: DeviceId = 'iphone-6.9', orientation?: Orientation) {
   const P = appPaths(slug);
-  const [vw, vh] = DEVICES[dev].preview;
+  if (!orientation) { const spec = validateFile('spec', P.spec); orientation = spec.ok ? spec.data.app.orientation : 'portrait'; }
+  const [vw, vh] = deviceSpec(dev, orientation).preview;
   const out = path.join(ensureDir(path.join(P.previews, dev)), 'preview.mp4');
   const r = await run('ffmpeg', [
     '-y', '-ss', '1', '-i', input, '-f', 'lavfi', '-i', 'anullsrc=channel_layout=stereo:sample_rate=44100',
@@ -229,24 +292,29 @@ export async function makeAssets(slug: string, opts: { skipBuild?: boolean; only
   if (!listing.ok) throw new Error(`listing.json invalid:\n  ${listing.errors.join('\n  ')}`);
   if (!shots.ok) throw new Error(`shots.json invalid:\n  ${shots.errors.join('\n  ')}`);
   if (!spec.ok) throw new Error('spec.json invalid');
-  const devices: DeviceId[] = spec.data.app.supportsTablet ? ['iphone-6.9', 'ipad-13'] : ['iphone-6.9'];
+  const devices: DeviceId[] = devicesFor(spec.data);
+  const orientation = spec.data.app.orientation;
 
   if (!opts.only || opts.only === 'icons') await makeIcons(slug);
   if (opts.only === 'icons') return;
   // Re-frame existing raw captures (e.g. native simulator shots) without touching the web build.
-  if (opts.only === 'compose') return composeScreenshots(slug, shots.data, listing.data, devices);
+  if (opts.only === 'compose') return composeScreenshots(slug, shots.data, listing.data, devices, orientation);
   const nativeMov = path.join(P.rawNative, 'preview.mov');
-  if (opts.only === 'preview' && existsSync(nativeMov)) return encodeNativePreview(slug, nativeMov);
-  const dist = opts.skipBuild ? path.join(P.app, 'dist-web') : await exportWeb(P.app);
-  const server = await serveStatic(dist);
+  if (opts.only === 'preview' && existsSync(nativeMov)) return encodeNativePreview(slug, nativeMov, 'iphone-6.9', orientation);
+  // Expo apps: the react-native-web export. Web games: the store-flavour bundle built from the game repo.
+  const web = spec.data.app.kind === 'web-game'
+    ? await storeBundle(slug, spec.data, { skipBuild: opts.skipBuild })
+    : { dir: opts.skipBuild ? path.join(P.app, 'dist-web') : await exportWeb(P.app), entry: undefined };
+  const hooks = await loadHooks(slug);
+  const server = await serveStatic(web.dir, { index: web.entry });
   try {
     if (!opts.only || opts.only === 'shots') {
-      await captureWebRaw(slug, shots.data, devices, server.url);
-      await composeScreenshots(slug, shots.data, listing.data, devices);
+      await captureWebRaw(slug, shots.data, devices, server.url, orientation, hooks);
+      await composeScreenshots(slug, shots.data, listing.data, devices, orientation);
     }
     if (!opts.only || opts.only === 'preview') {
-      if (existsSync(nativeMov)) await encodeNativePreview(slug, nativeMov);
-      else await recordWebPreview(slug, shots.data, server.url);
+      if (existsSync(nativeMov)) await encodeNativePreview(slug, nativeMov, 'iphone-6.9', orientation);
+      else await recordWebPreview(slug, shots.data, server.url, 'iphone-6.9', orientation, hooks);
     }
   } finally {
     await server.close();

@@ -1,0 +1,561 @@
+{
+  "at": "2026-11-03T04:12:41.733Z",
+  "ok": true,
+  "checks": [
+    {
+      "id": "input.spec",
+      "level": "pass",
+      "msg": "spec valid"
+    },
+    {
+      "id": "input.listing",
+      "level": "pass",
+      "msg": "listing valid"
+    },
+    {
+      "id": "input.shots",
+      "level": "pass",
+      "msg": "shots valid"
+    },
+    {
+      "id": "input.journeys",
+      "level": "pass",
+      "msg": "journeys valid"
+    },
+    {
+      "id": "spec.min-functionality",
+      "level": "pass",
+      "msg": "8 MVP features",
+      "ref": "4.2"
+    },
+    {
+      "id": "spec.native-value",
+      "level": "pass",
+      "msg": "Native value articulated",
+      "ref": "4.2"
+    },
+    {
+      "id": "spec.iap-products",
+      "level": "pass",
+      "msg": "IAP products defined",
+      "ref": "3.1.1"
+    },
+    {
+      "id": "spec.restore",
+      "level": "pass",
+      "msg": "Restore Purchases planned",
+      "ref": "3.1.1"
+    },
+    {
+      "id": "spec.tabs",
+      "level": "pass",
+      "msg": "0 tabs",
+      "ref": "HIG"
+    },
+    {
+      "id": "spec.settings-screen",
+      "level": "pass",
+      "msg": "Settings/About screen present (privacy policy link, support, deletion)",
+      "ref": "5.1.1(i)"
+    },
+    {
+      "id": "code.webview-exception",
+      "level": "warn",
+      "msg": "Web-view shell (Capacitor) allowed only as app.kind \"web-game\" — AGENTS.md rule 4 exception. Residual Guideline 4.2 risk: keep the review notes explicit about the native features (offline, Game Center, haptics, native storage)",
+      "ref": "4.2"
+    },
+    {
+      "id": "webgame.source",
+      "level": "pass",
+      "msg": "50thycal/td_cargo_ship@claude/mobile-game-predator-prey-tu1t5k at 87f357f1e5"
+    },
+    {
+      "id": "webgame.bundle.fresh",
+      "level": "pass",
+      "msg": "store bundle built from the checked-out commit"
+    },
+    {
+      "id": "webgame.store-build",
+      "level": "pass",
+      "msg": "built with npm run build:store"
+    },
+    {
+      "id": "webgame.store-flavor",
+      "level": "pass",
+      "msg": "index.html is the store flavour",
+      "ref": "2.3.1 / 5.1.2"
+    },
+    {
+      "id": "bundle.remote-urls",
+      "level": "pass",
+      "msg": "No remote URLs in code/markup (10 files scanned)",
+      "ref": "4.2 / 2.5.2"
+    },
+    {
+      "id": "bundle.namespaces",
+      "level": "pass",
+      "msg": "Allowed: XML namespace identifiers (http://www.w3.org/2000/svg)"
+    },
+    {
+      "id": "bundle.own-links",
+      "level": "pass",
+      "msg": "Allowed: the app's own legal pages as links (https://app-farm-legal.vercel.app/straitwatch/privacy)",
+      "ref": "5.1.1(i)"
+    },
+    {
+      "id": "bundle.fetch-remote",
+      "level": "pass",
+      "msg": "No fetch() of an absolute URL",
+      "ref": "4.2 / 2.5.2"
+    },
+    {
+      "id": "bundle.api",
+      "level": "pass",
+      "msg": "No backend endpoints (/api/…)",
+      "ref": "5.1.2"
+    },
+    {
+      "id": "bundle.channels",
+      "level": "pass",
+      "msg": "No WebSocket / EventSource / sendBeacon",
+      "ref": "5.1.2"
+    },
+    {
+      "id": "bundle.fetch",
+      "level": "pass",
+      "msg": "3 fetch() call(s), none to a remote host or /api/ (runtime requests are checked by the playtest)"
+    },
+    {
+      "id": "bundle.forbid.api-playlog",
+      "level": "pass",
+      "msg": "\"/api/playlog\" absent",
+      "ref": "2.3.1 / 5.1.2"
+    },
+    {
+      "id": "bundle.forbid.download-log",
+      "level": "pass",
+      "msg": "\"Download log\" absent",
+      "ref": "2.3.1 / 5.1.2"
+    },
+    {
+      "id": "bundle.forbid.developer-mode",
+      "level": "pass",
+      "msg": "\"Developer mode\" absent",
+      "ref": "2.3.1 / 5.1.2"
+    },
+    {
+      "id": "bundle.forbid.play-v2",
+      "level": "pass",
+      "msg": "\"Play V2 →\" absent",
+      "ref": "2.3.1 / 5.1.2"
+    },
+    {
+      "id": "bundle.data-urls",
+      "level": "warn",
+      "msg": "URLs inside data files (fine as attribution text; never fetch or open them): v3/audio/CREDITS.json: https://registry.npmjs.org"
+    },
+    {
+      "id": "code.placeholder",
+      "level": "pass",
+      "msg": "No placeholder content",
+      "ref": "2.1 / 2.3.3"
+    },
+    {
+      "id": "code.privacy-link",
+      "level": "pass",
+      "msg": "In-app privacy policy link (https://app-farm-legal.vercel.app/straitwatch/privacy)",
+      "ref": "5.1.1(i)"
+    },
+    {
+      "id": "code.restore",
+      "level": "pass",
+      "msg": "Restore Purchases present",
+      "ref": "3.1.1"
+    },
+    {
+      "id": "cap.dep.core",
+      "level": "pass",
+      "msg": "@capacitor/core ^8.6.0",
+      "ref": "4.2"
+    },
+    {
+      "id": "cap.dep.ios",
+      "level": "pass",
+      "msg": "@capacitor/ios ^8.6.0",
+      "ref": "4.2"
+    },
+    {
+      "id": "cap.dep.preferences",
+      "level": "pass",
+      "msg": "@capacitor/preferences ^8.0.1",
+      "ref": "4.2"
+    },
+    {
+      "id": "cap.dep.haptics",
+      "level": "pass",
+      "msg": "@capacitor/haptics ^8.0.2",
+      "ref": "4.2"
+    },
+    {
+      "id": "code.iap",
+      "level": "pass",
+      "msg": "StoreKit plugin @capgo/native-purchases",
+      "ref": "3.1.1"
+    },
+    {
+      "id": "config.version",
+      "level": "pass",
+      "msg": "version 1.0.0 (MARKETING_VERSION)"
+    },
+    {
+      "id": "cap.app-id",
+      "level": "pass",
+      "msg": "appId com.appfarm.straitwatch"
+    },
+    {
+      "id": "cap.app-name",
+      "level": "pass",
+      "msg": "appName Straitwatch"
+    },
+    {
+      "id": "cap.web-dir",
+      "level": "pass",
+      "msg": "webDir dist"
+    },
+    {
+      "id": "cap.server-url",
+      "level": "pass",
+      "msg": "No server.url (loads the bundled files)",
+      "ref": "4.2 / 2.5.2"
+    },
+    {
+      "id": "config.bundle-id",
+      "level": "pass",
+      "msg": "PRODUCT_BUNDLE_IDENTIFIER com.appfarm.straitwatch"
+    },
+    {
+      "id": "config.tablet",
+      "level": "pass",
+      "msg": "TARGETED_DEVICE_FAMILY 1",
+      "ref": "2.4.1"
+    },
+    {
+      "id": "cap.native.preferences",
+      "level": "pass",
+      "msg": "CapacitorPreferences linked in the iOS project",
+      "ref": "4.2"
+    },
+    {
+      "id": "cap.native.haptics",
+      "level": "pass",
+      "msg": "CapacitorHaptics linked in the iOS project",
+      "ref": "4.2"
+    },
+    {
+      "id": "config.orientation",
+      "level": "pass",
+      "msg": "Landscape lock: UIInterfaceOrientationLandscapeRight, UIInterfaceOrientationLandscapeLeft",
+      "ref": "4.0 / HIG"
+    },
+    {
+      "id": "config.encryption",
+      "level": "pass",
+      "msg": "Export compliance declared (ITSAppUsesNonExemptEncryption=false)",
+      "ref": "Export compliance"
+    },
+    {
+      "id": "config.launch-screen",
+      "level": "pass",
+      "msg": "launch screen LaunchScreen",
+      "ref": "2.1"
+    },
+    {
+      "id": "config.name",
+      "level": "pass",
+      "msg": "display name \"Straitwatch\"",
+      "ref": "2.3.8"
+    },
+    {
+      "id": "config.privacy-manifest.tracking",
+      "level": "pass",
+      "msg": "NSPrivacyTracking false",
+      "ref": "5.1.2"
+    },
+    {
+      "id": "config.privacy-manifest.userdefaults",
+      "level": "pass",
+      "msg": "UserDefaults declared (Preferences)",
+      "ref": "ITMS-91053"
+    },
+    {
+      "id": "config.privacy-manifest.collected",
+      "level": "pass",
+      "msg": "Manifest declares no collected data (matches the label)",
+      "ref": "5.1.2"
+    },
+    {
+      "id": "icon.app.alpha",
+      "level": "pass",
+      "msg": "app icon opaque",
+      "ref": "ITMS-90717"
+    },
+    {
+      "id": "icon.match",
+      "level": "pass",
+      "msg": "binary icon matches store/icon-1024.png (Δ 0.2)"
+    },
+    {
+      "id": "icon.store",
+      "level": "pass",
+      "msg": "store icon 1024² opaque",
+      "ref": "ITMS-90717"
+    },
+    {
+      "id": "gamecenter.code",
+      "level": "pass",
+      "msg": "GameKit used (native/game-center/ios/Sources/GameCenterPlugin/GameCenterPlugin.swift)"
+    },
+    {
+      "id": "gamecenter.entitlement",
+      "level": "pass",
+      "msg": "Game Center entitlement in App.entitlements"
+    },
+    {
+      "id": "gamecenter.entitlement-linked",
+      "level": "pass",
+      "msg": "CODE_SIGN_ENTITLEMENTS set"
+    },
+    {
+      "id": "playtest.ok",
+      "level": "pass",
+      "msg": "Playtest passed",
+      "ref": "2.1"
+    },
+    {
+      "id": "playtest.fresh",
+      "level": "pass",
+      "msg": "Playtest ran on the checked-out commit"
+    },
+    {
+      "id": "listing.keywords.bytes",
+      "level": "pass",
+      "msg": "keywords 97/100 bytes"
+    },
+    {
+      "id": "listing.name.match",
+      "level": "pass",
+      "msg": "Store name matches the app name",
+      "ref": "2.3.8"
+    },
+    {
+      "id": "listing.subtitle",
+      "level": "pass",
+      "msg": "Subtitle adds information"
+    },
+    {
+      "id": "listing.review-notes",
+      "level": "pass",
+      "msg": "Review notes explain how to test",
+      "ref": "2.1"
+    },
+    {
+      "id": "listing.copyright",
+      "level": "pass",
+      "msg": "Copyright year current"
+    },
+    {
+      "id": "listing.supportUrl.https",
+      "level": "pass",
+      "msg": "supportUrl is https"
+    },
+    {
+      "id": "listing.privacyPolicyUrl.https",
+      "level": "pass",
+      "msg": "privacyPolicyUrl is https"
+    },
+    {
+      "id": "listing.marketingUrl.https",
+      "level": "pass",
+      "msg": "marketingUrl is https"
+    },
+    {
+      "id": "listing.privacy-url",
+      "level": "pass",
+      "msg": "Privacy URL matches the in-app link",
+      "ref": "5.1.1(i)"
+    },
+    {
+      "id": "listing.category",
+      "level": "pass",
+      "msg": "Category matches spec"
+    },
+    {
+      "id": "shots.iphone-6.9.count",
+      "level": "pass",
+      "msg": "iphone-6.9: 6 screenshots"
+    },
+    {
+      "id": "shots.iphone-6.9.01-defend.png.size",
+      "level": "pass",
+      "msg": "01-defend.png 2868×1320"
+    },
+    {
+      "id": "shots.iphone-6.9.01-defend.png.alpha",
+      "level": "pass",
+      "msg": "01-defend.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.02-weapons.png.size",
+      "level": "pass",
+      "msg": "02-weapons.png 2868×1320"
+    },
+    {
+      "id": "shots.iphone-6.9.02-weapons.png.alpha",
+      "level": "pass",
+      "msg": "02-weapons.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.03-draft.png.size",
+      "level": "pass",
+      "msg": "03-draft.png 2868×1320"
+    },
+    {
+      "id": "shots.iphone-6.9.03-draft.png.alpha",
+      "level": "pass",
+      "msg": "03-draft.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.04-later.png.size",
+      "level": "pass",
+      "msg": "04-later.png 2868×1320"
+    },
+    {
+      "id": "shots.iphone-6.9.04-later.png.alpha",
+      "level": "pass",
+      "msg": "04-later.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.05-maps.png.size",
+      "level": "pass",
+      "msg": "05-maps.png 2868×1320"
+    },
+    {
+      "id": "shots.iphone-6.9.05-maps.png.alpha",
+      "level": "pass",
+      "msg": "05-maps.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.06-armory.png.size",
+      "level": "pass",
+      "msg": "06-armory.png 2868×1320"
+    },
+    {
+      "id": "shots.iphone-6.9.06-armory.png.alpha",
+      "level": "pass",
+      "msg": "06-armory.png opaque"
+    },
+    {
+      "id": "shots.iphone-6.9.source",
+      "level": "warn",
+      "msg": "Screenshots were captured from the web build. Recapture on the iOS Simulator before submitting (farm-native-qa workflow or mac/native-qa.sh) so they show true native rendering",
+      "ref": "2.3.3"
+    },
+    {
+      "id": "preview.duration",
+      "level": "pass",
+      "msg": "preview 27.9s"
+    },
+    {
+      "id": "preview.size",
+      "level": "pass",
+      "msg": "preview 1920×886"
+    },
+    {
+      "id": "preview.fps",
+      "level": "pass",
+      "msg": "preview 30 fps"
+    },
+    {
+      "id": "preview.codec",
+      "level": "pass",
+      "msg": "preview H.264"
+    },
+    {
+      "id": "preview.audio",
+      "level": "pass",
+      "msg": "preview has audio track"
+    },
+    {
+      "id": "preview.bytes",
+      "level": "pass",
+      "msg": "preview < 500MB"
+    },
+    {
+      "id": "preview.content",
+      "level": "pass",
+      "msg": "preview frame is filled",
+      "ref": "2.3.4"
+    },
+    {
+      "id": "privacy.label",
+      "level": "pass",
+      "msg": "App Privacy answers match spec",
+      "ref": "5.1.2"
+    },
+    {
+      "id": "site.privacy.html",
+      "level": "pass",
+      "msg": "site/privacy.html"
+    },
+    {
+      "id": "site.terms.html",
+      "level": "pass",
+      "msg": "site/terms.html"
+    },
+    {
+      "id": "site.support.html",
+      "level": "pass",
+      "msg": "site/support.html"
+    },
+    {
+      "id": "site.index.html",
+      "level": "pass",
+      "msg": "site/index.html"
+    },
+    {
+      "id": "owner.legalName",
+      "level": "pass",
+      "msg": "owner.legalName set"
+    },
+    {
+      "id": "owner.firstName",
+      "level": "pass",
+      "msg": "owner.firstName set"
+    },
+    {
+      "id": "owner.lastName",
+      "level": "pass",
+      "msg": "owner.lastName set"
+    },
+    {
+      "id": "owner.email",
+      "level": "warn",
+      "msg": "farm.config.json owner.email empty (needed for App Review contact)"
+    },
+    {
+      "id": "owner.phone",
+      "level": "warn",
+      "msg": "farm.config.json owner.phone empty (needed for App Review contact)"
+    },
+    {
+      "id": "apple.team",
+      "level": "warn",
+      "msg": "farm.config.json apple.teamId empty"
+    },
+    {
+      "id": "release.asc-app",
+      "level": "warn",
+      "msg": "No App Store Connect app id yet — create the app record (docs/HUMAN_STEPS.md) then `farm set <slug> ascAppId <id>`"
+    }
+  ]
+}

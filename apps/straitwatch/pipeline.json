@@ -1,0 +1,317 @@
+{
+  "slug": "straitwatch",
+  "createdAt": "2026-11-03T03:13:08.453Z",
+  "source": {
+    "type": "repo",
+    "value": "50thycal/td_cargo_ship"
+  },
+  "stages": {
+    "intake": {
+      "status": "done",
+      "updatedAt": "2026-11-03T04:12:51.503Z"
+    },
+    "spec": {
+      "status": "done",
+      "updatedAt": "2026-11-03T04:16:42.967Z"
+    },
+    "scaffold": {
+      "status": "done",
+      "updatedAt": "2026-11-03T03:51:50.903Z"
+    },
+    "build": {
+      "status": "done",
+      "updatedAt": "2026-11-03T03:52:10.892Z"
+    },
+    "playtest": {
+      "status": "done",
+      "updatedAt": "2026-11-03T04:11:21.470Z"
+    },
+    "listing": {
+      "status": "done",
+      "updatedAt": "2026-11-03T04:12:38.728Z"
+    },
+    "assets": {
+      "status": "done",
+      "updatedAt": "2026-11-03T03:57:03.128Z"
+    },
+    "legal": {
+      "status": "done",
+      "updatedAt": "2026-11-03T04:12:39.906Z"
+    },
+    "preflight": {
+      "status": "done",
+      "updatedAt": "2026-11-03T04:12:41.737Z",
+      "note": "7 warnings"
+    },
+    "native-qa": {
+      "status": "pending",
+      "updatedAt": "2026-11-03T03:13:08.453Z"
+    },
+    "release": {
+      "status": "pending",
+      "updatedAt": "2026-11-03T03:13:08.453Z"
+    },
+    "store": {
+      "status": "pending",
+      "updatedAt": "2026-11-03T03:13:08.453Z"
+    },
+    "submit": {
+      "status": "pending",
+      "updatedAt": "2026-11-03T03:13:08.453Z"
+    }
+  },
+  "release": {},
+  "history": [
+    {
+      "at": "2026-11-03T03:14:14.179Z",
+      "stage": "intake",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:15:15.939Z",
+      "stage": "spec",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:15:33.526Z",
+      "stage": "scaffold",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:15:39.852Z",
+      "stage": "scaffold",
+      "event": "done",
+      "detail": "1 warnings"
+    },
+    {
+      "at": "2026-11-03T03:17:31.150Z",
+      "stage": "build",
+      "event": "done",
+      "detail": "2 warnings"
+    },
+    {
+      "at": "2026-11-03T03:17:46.999Z",
+      "stage": "playtest",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:18:52.632Z",
+      "stage": "playtest",
+      "event": "failed",
+      "detail": "suite.skipped, journey.settings-legal"
+    },
+    {
+      "at": "2026-11-03T03:20:07.725Z",
+      "stage": "listing",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:20:11.438Z",
+      "stage": "listing",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:20:11.469Z",
+      "stage": "listing",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:20:21.999Z",
+      "stage": "assets",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:24:19.292Z",
+      "stage": "assets",
+      "event": "done",
+      "detail": "1 warnings"
+    },
+    {
+      "at": "2026-11-03T03:25:41.563Z",
+      "stage": "scaffold",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:25:45.382Z",
+      "stage": "scaffold",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:26:01.567Z",
+      "stage": "build",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:26:13.613Z",
+      "stage": "playtest",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:27:11.121Z",
+      "stage": "playtest",
+      "event": "failed",
+      "detail": "suite.skipped, journey.settings-legal"
+    },
+    {
+      "at": "2026-11-03T03:27:40.591Z",
+      "stage": "spec",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:28:02.468Z",
+      "stage": "playtest",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:30:04.742Z",
+      "stage": "playtest",
+      "event": "failed",
+      "detail": "\"npx vite preview --port 4173 --strictPort\" exited with 1"
+    },
+    {
+      "at": "2026-11-03T03:32:43.398Z",
+      "stage": "playtest",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:45:25.475Z",
+      "stage": "playtest",
+      "event": "failed",
+      "detail": "suite.e2e-v3-store"
+    },
+    {
+      "at": "2026-11-03T03:45:53.173Z",
+      "stage": "assets",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:50:51.569Z",
+      "stage": "assets",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:51:46.450Z",
+      "stage": "scaffold",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:51:50.903Z",
+      "stage": "scaffold",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:52:10.892Z",
+      "stage": "build",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:52:12.109Z",
+      "stage": "assets",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T03:57:03.128Z",
+      "stage": "assets",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T03:57:38.652Z",
+      "stage": "playtest",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T04:11:21.470Z",
+      "stage": "playtest",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T04:11:36.850Z",
+      "stage": "legal",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T04:11:36.876Z",
+      "stage": "legal",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T04:11:38.054Z",
+      "stage": "preflight",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T04:11:38.566Z",
+      "stage": "preflight",
+      "event": "failed",
+      "detail": "gamecenter.code"
+    },
+    {
+      "at": "2026-11-03T04:11:58.096Z",
+      "stage": "preflight",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T04:11:58.612Z",
+      "stage": "preflight",
+      "event": "done",
+      "detail": "7 warnings"
+    },
+    {
+      "at": "2026-11-03T04:12:17.932Z",
+      "stage": "preflight",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T04:12:18.473Z",
+      "stage": "preflight",
+      "event": "done",
+      "detail": "7 warnings"
+    },
+    {
+      "at": "2026-11-03T04:12:38.684Z",
+      "stage": "listing",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T04:12:38.728Z",
+      "stage": "listing",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T04:12:39.877Z",
+      "stage": "legal",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T04:12:39.906Z",
+      "stage": "legal",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T04:12:41.218Z",
+      "stage": "preflight",
+      "event": "in_progress"
+    },
+    {
+      "at": "2026-11-03T04:12:41.737Z",
+      "stage": "preflight",
+      "event": "done",
+      "detail": "7 warnings"
+    },
+    {
+      "at": "2026-11-03T04:12:50.221Z",
+      "stage": "spec",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T04:12:51.503Z",
+      "stage": "intake",
+      "event": "done"
+    },
+    {
+      "at": "2026-11-03T04:16:42.967Z",
+      "stage": "spec",
+      "event": "done"
+    }
+  ]
+}

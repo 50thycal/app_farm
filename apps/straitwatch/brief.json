@@ -1,0 +1,34 @@
+{
+  "workingName": "Straitwatch",
+  "nameAlternatives": ["Convoy Watch", "Narrows Patrol", "Strait Defense"],
+  "oneLiner": "Guard merchant convoys through a contested strait: tap to intercept drones, missiles and jets before they hit.",
+  "problem": "Mobile tower-defense and missile-defense games are mostly free-to-play grinds with ads and timers. Players who want a tight, readable, offline arcade-strategy game with real depth have few premium-feeling options.",
+  "audience": "Strategy and arcade players (teens and adults) who like Missile Command, tower defense and roguelite runs, and play in short landscape sessions on iPhone.",
+  "coreLoop": "Pick a map and the one upgrade each Armory bay gives this run, then defend the convoy for ten waves: tap threats to intercept them, grab weapon drops from kills and fire them, and draft a new weapon after every wave. A run ends with Armory cards that make the next run stronger and, on a clear, the next map.",
+  "differentiator": "Twenty hand-built maps where each one adds one new idea (supertankers, lock gates, shore batteries, drifting mines, night, a battleship crossing), twelve weapons that each answer a kind of attack, and a fully offline game with no ads.",
+  "mvpFeatures": [
+    "20 maps in four chapters, ten waves each, endless mode after a clear",
+    "Tap-to-intercept defense of the convoy and the carrier",
+    "Twelve drafted weapons dropped as pickups, three held, three levels each",
+    "The Armory: eleven upgrade cards in three bays, won after runs",
+    "Game Center leaderboards per map and achievements",
+    "Native saves, haptics and a landscape full-screen shell",
+    "Chapter 1 free; one in-app purchase unlocks chapters 2–4, with Restore Purchases"
+  ],
+  "laterFeatures": ["iPad layout", "More languages"],
+  "category": "GAMES",
+  "monetization": "freemium-iap",
+  "needsBackend": false,
+  "needsAccounts": false,
+  "source": {
+    "type": "repo",
+    "value": "50thycal/td_cargo_ship",
+    "notes": "Vite + TypeScript canvas game (V3, v3.html). Store flavour + Capacitor iOS project built in the game repo (workstream W1); app_farm ships it as app.kind web-game."
+  },
+  "risks": [
+    { "risk": "A web-view (Capacitor) shell can be judged a repackaged website", "guideline": "4.2", "mitigation": "Complete offline game in the binary, nothing remote, native storage, haptics, Game Center and StoreKit; review notes list the native features; preflight web-game checks" },
+    { "risk": "Chapters 2–4 behind a purchase", "guideline": "3.1.1", "mitigation": "StoreKit non-consumable, Restore Purchases in Settings, chapter 1 fully playable free, no external payment" },
+    { "risk": "Military theme", "guideline": "1.1 / age rating", "mitigation": "Fictional strait and factions, abstract vector art, no gore; age rating answers cartoon/fantasy violence (infrequent/mild)" }
+  ],
+  "openQuestions": ["IAP price tier (owner)", "Public support email (owner)"]
+}

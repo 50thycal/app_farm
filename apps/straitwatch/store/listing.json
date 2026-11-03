@@ -1,0 +1,40 @@
+{
+  "locale": "en-US",
+  "name": "Straitwatch",
+  "subtitle": "Convoy defense strategy",
+  "promotionalText": "Twenty hand-built maps, twelve weapons and an Armory that grows with every run. Guard the convoy through the strait — fully offline, no ads.",
+  "description": "Merchant ships are crossing a contested strait, and you are the only thing standing between them and the shore. Tap drones, missiles and jets out of the sky before they reach the convoy.\n\nDEFEND THE CONVOY\n• Ships sail across the strait in real time while raids launch from the hostile shore\n• Tap a threat to fire the carrier's gun at it; your rack of rounds reloads as you fight\n• Ten waves clear a map; lose too many ships and the run is over\n• Set the pace: speed up to 2×, and choose how many ships sail for more points\n\nTWELVE WEAPONS\n• After every wave, draft one of three weapons: Flak Cannon, Seeker Pod, Aegis Launchers, Gravity Well, Air Strike, Railgun, Tesla Arc, Shrapnel Shell, Frigate Escort, Thermobaric Shell, Scattergun and Boomerang\n• Weapons drop from kills; grab one to load your gun with it for 15 seconds\n• Hold three at once and level each up to its MAX form\n\nTHE ARMORY\n• Win upgrade cards at the end of every run: eleven cards across the Gun, Hull and Supply bays\n• Duplicates level a card up; equip one card from each bay before a run\n\nTWENTY MAPS IN FOUR CHAPTERS\n• Home Waters, The Narrows, Dark Water and Open War\n• Each map after the first five adds one new idea: a bending lane, an allied radar, a supertanker, lock gates, shore batteries, drifting mines, oil rigs, night, a battleship, fast boats, two-way traffic, the tide and the Citadel\n• Clear a map to unlock the next, then keep going in endless mode\n\nGAME CENTER\n• A best-score leaderboard for every map, and achievements\n\nPLAY IT YOUR WAY\n• Chapter 1 — five full maps — is free to play. One in-app purchase unlocks chapters 2–4 (fifteen more maps) for good. Restore Purchases is in Settings.\n• Plays completely offline. No ads, no account, and no data collected.\n• Designed for iPhone in landscape, with haptic feedback and progress saved on your device.",
+  "keywords": "missile,intercept,tower,naval,navy,warship,carrier,drone,roguelite,arcade,offline,fleet,escort,td",
+  "whatsNew": "First release.",
+  "supportUrl": "https://app-farm-legal.vercel.app/straitwatch/support",
+  "marketingUrl": "https://app-farm-legal.vercel.app/straitwatch",
+  "privacyPolicyUrl": "https://app-farm-legal.vercel.app/straitwatch/privacy",
+  "copyright": "2026 Calvin Wampol",
+  "primaryCategory": "GAMES",
+  "review": {
+    "notes": "Straitwatch is a complete offline game: the whole game is bundled in the app and nothing is loaded from the network. No account is needed.\n\nHow to play: on the menu tap map 1, The Strait, then Start. Ships cross the strait left to right; tap drones and missiles to shoot them down before they hit a ship. After each wave pick one of three weapons; weapons then drop from kills - tap a drop to load your gun with it for 15 seconds. Ten waves clear the map and unlock the next. Cards won at the end of a run appear in the Armory (top of the menu), where one card per bay can be equipped.\n\nIn-App Purchase: chapter 1 (maps 1-5) is free. The non-consumable product com.appfarm.straitwatch.fullgame unlocks chapters 2-4; tap any map in chapters 2-4 to see the offer. Settings has Restore Purchases.\n\nNative features: Game Center leaderboards (one per map) and achievements - the game works normally without signing in to Game Center; haptic feedback on hits and wins (Settings has a switch); progress stored in native storage; landscape-only full screen; the game pauses when the app goes to the background.\n\nSettings also shows the version, credits (all sounds are CC0), the privacy policy and Reset progress.",
+    "demoAccountRequired": false
+  },
+  "ageRating": {
+    "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+    "contests": "NONE",
+    "gamblingSimulated": "NONE",
+    "horrorOrFearThemes": "NONE",
+    "matureOrSuggestiveThemes": "NONE",
+    "medicalOrTreatmentInformation": "NONE",
+    "profanityOrCrudeHumor": "NONE",
+    "sexualContentGraphicAndNudity": "NONE",
+    "sexualContentOrNudity": "NONE",
+    "violenceCartoonOrFantasy": "INFREQUENT_OR_MILD",
+    "violenceRealistic": "NONE",
+    "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+    "gambling": false,
+    "unrestrictedWebAccess": false
+  },
+  "brand": {
+    "background": "#070D12",
+    "backgroundEnd": "#123247",
+    "text": "#F4F1E8",
+    "accent": "#7FE9FF"
+  }
+}

@@ -29,6 +29,15 @@ Then work the loop until the next stage is `ci`/`human`. Commit after each passi
    `apps/<slug>/store/screenshots/` and judge them like an App Store reviewer and a picky designer.
 3. **No placeholders ever** (lorem ipsum, TODO in UI, fake buttons, "coming soon"). Demo data must look real.
 4. **Native, not a website.** Never wrap a web view as the app (Guideline 4.2). Port logic, rebuild UI natively.
+   **One documented exception: `spec.app.kind: "web-game"`.** A complete, self-contained, offline *game* whose
+   canvas engine is the UI (there is no native UI to rebuild) may ship its own bundle in a Capacitor shell, built
+   from its own repo (`spec.source`). It is allowed only while preflight's replacement checks pass: the store-flavour
+   build, nothing remote in the bundle or at runtime (no remote URLs, `fetch`, `/api/…`, sockets), no
+   playtest/dev tooling, Capacitor Preferences + Haptics linked, the orientation locked in Info.plist, export
+   compliance, privacy manifest, opaque icon, Game Center when declared. Never use it for a website, a web app, a
+   content or account app, or anything that loads remote content — that is exactly what 4.2/4.7 reject. Approved by
+   the owner for Straitwatch (2026-11); the residual review risk is a rejection and resubmit, not a ban.
+   Preflight *fails* a Capacitor/Cordova shell in any other kind of app.
 5. **Expo changes fast.** Read `apps/<slug>/app/AGENTS.md` and the versioned Expo docs for the SDK in use.
    Use `npx expo install` for packages. Never hand-edit `ios/` or `android/`.
 6. **Outward-facing actions need the human:** submitting for review (`asc submit`), spending money, creating
@@ -38,6 +47,8 @@ Then work the loop until the next stage is `ci`/`human`. Commit after each passi
 ## Where things run
 | Need | Cloud session (Linux) | Mac (Claude Code desktop / Codex) | GitHub Actions |
 |---|---|---|---|
+| web-game: checkout + store build, game suites, captures, preflight | ✅ | ✅ | – |
+| web-game: archive, sign, TestFlight | – | – | `farm-capacitor-release` (macos-15) |
 | intake/spec/build/listing (agent work) | ✅ | ✅ | – |
 | playtest, screenshots, preview, preflight | ✅ (web build + Chromium) | ✅ | – |
 | Native simulator QA + native screenshots | – | `mac/native-qa.sh` | `farm-native-qa` (macos-15) |

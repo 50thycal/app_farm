@@ -56,6 +56,7 @@ ${p.collectsData && rows ? `<h2>Data we collect</h2><table><tr><th>Data</th><th>
 ${spec.permissions.length ? `<h2>Device permissions</h2><p>The app asks for permission before accessing:</p><ul>${spec.permissions.map((x) => `<li><strong>${human(x.key)}</strong> — ${esc(x.reason)}</li>`).join('')}</ul><p>You can change these at any time in iOS Settings.</p>` : ''}
 ${p.thirdPartySdks.length ? `<h2>Third-party services</h2><p>The app uses the following services, which process data under their own privacy policies:</p><ul>${p.thirdPartySdks.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
 ${spec.monetization.model !== 'free' && spec.monetization.model !== 'ads' ? '<h2>Purchases</h2><p>Payments are processed by Apple through the App Store. We never receive your payment card details.</p>' : ''}
+${spec.app.gameCenter ? '<h2>Game Center</h2><p>If you are signed in to Game Center, your scores and achievements are sent to Apple’s Game Center service and shown to you and, depending on your Game Center settings, to other players. Apple processes this data under its own privacy policy; we do not receive it on any server of ours.</p>' : ''}
 <h2>Retention and deletion</h2><p>${spec.accounts.deletionInApp ? 'You can delete your account and associated data at any time in the app under Settings → Delete Account. ' : ''}Data stored on your device is removed when you delete the app. To request deletion of any data we hold, email <a href="mailto:${esc(cfg.owner.email)}">${esc(cfg.owner.email)}</a>; we respond within 30 days.</p>
 <h2>Children</h2><p>The app is not directed to children under 13${spec.content.regulated.includes('kids') ? ', except as permitted in the App Store Kids Category with verifiable parental consent' : ''}, and we do not knowingly collect personal information from children.</p>
 <h2>Your rights</h2><p>Depending on where you live (for example under the GDPR or CCPA/CPRA) you may have rights to access, correct, delete or port your data and to object to processing. Contact us to exercise them.</p>
@@ -90,7 +91,7 @@ ${spec.monetization.restorePurchases ? '<h3>How do I restore purchases?</h3><p>O
 
 export function indexHtml(spec: Spec, listing?: Listing, shots: string[] = []) {
   const body = `<div class="hero"><img src="icon.png" alt=""><div><h1>${esc(spec.app.name)}</h1><p class="muted" style="margin:0">${esc(listing?.subtitle ?? spec.app.subtitle)}</p></div></div>
-${shots.length ? `<div class="shots">${shots.map((s) => `<img src="${s}" alt="">`).join('')}</div>` : ''}
+${shots.length ? `${spec.app.orientation === 'landscape' ? '<style>.shots img{height:240px}</style>' : ''}<div class="shots">${shots.map((s) => `<img src="${s}" alt="">`).join('')}</div>` : ''}
 ${(listing?.description ?? spec.pitch.oneLiner).split(/\n{2,}/).map((para) => `<p>${esc(para).replace(/\n/g, '<br>')}</p>`).join('')}`;
   return page(spec.app.name, spec, body);
 }

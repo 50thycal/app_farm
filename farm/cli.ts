@@ -6,7 +6,7 @@ import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
 import { APPS_DIR, appPaths, color, log, readJson, ROOT, slugify, which, writeJson, writeText, chromiumPath } from './lib/util.ts';
-import { CONFIG_PATH, loadConfig, loadPipeline, savePipeline, setStage, validateFile, Checks, type Pipeline } from './lib/state.ts';
+import { CONFIG_PATH, journeysFile, loadConfig, loadPipeline, savePipeline, setStage, validateFile, Checks, type Pipeline } from './lib/state.ts';
 import { schemas, type SchemaName } from './schemas/index.ts';
 import { STAGES, stageById, nextStage, logChecks, type RunOpts } from './stages/index.ts';
 import { renderPrompt, runAgent, type AgentKind } from './lib/agent.ts';
@@ -52,6 +52,7 @@ ${color.bold('Driving the pipeline')}
   skip <slug> <stage>               mark a stage skipped
   set <slug> <ascAppId|easProjectId> <value>
   mark-build <slug> <buildNumber> [--testflight]   record a build (used by CI)
+  bundle-check <slug> [--skip-build]   web-game: build the store flavour and scan it (blocking gate in farm-capacitor-release)
 
 ${color.bold('Tools')}
   validate <slug> <brief|spec|journeys|shots|listing>
@@ -254,7 +255,7 @@ async function main() {
       const slug = requireSlug(args[0]);
       const name = args[1] as SchemaName;
       const P = appPaths(slug) as any;
-      const v = validateFile(name, P[name]);
+      const v = validateFile(name, name === 'journeys' ? journeysFile(slug) : P[name]);
       if (v.ok) log.ok(`${name} valid`); else { v.errors.forEach((e) => log.err(e)); process.exitCode = 1; }
       break;
     }
@@ -274,6 +275,20 @@ async function main() {
       const sh = validateFile('shots', P.shots);
       if (!spec.ok || !j.ok) throw new Error('spec/journeys invalid');
       log.ok(`flows → ${writeMaestroFlows(slug, spec.data.app.bundleId, spec.data.app.scheme, j.data.journeys, sh.ok ? sh.data.scenes : undefined, sh.ok ? sh.data.preview.steps : undefined)}`);
+      break;
+    }
+    case 'bundle-check': {
+      const slug = requireSlug(args[0]);
+      const spec = validateFile('spec', appPaths(slug).spec);
+      if (!spec.ok || spec.data.app.kind !== 'web-game') throw new Error('bundle-check is for app.kind "web-game"');
+      const { storeBundle, scanBundle, sourceOf } = await import('./lib/webgame.ts');
+      const { legalUrls } = await import('./stages/scaffold.ts');
+      const b = await storeBundle(slug, spec.data, { skipBuild: opts.skipBuild });
+      const u = legalUrls(loadConfig(), slug);
+      const c = scanBundle(b.dir, { allowUrls: [u.privacyUrl, u.termsUrl, u.supportUrl, u.marketingUrl], forbid: sourceOf(spec.data).forbid, declared: sourceOf(spec.data).allowUrls });
+      c.expect(b.report.storeFlavor && !b.report.usedFallback, 'bundle.store-flavor', `${b.entry} is the store flavour (${b.report.sha?.slice(0, 10)})`, `${b.entry} is not the store flavour (${b.report.buildCmd})`);
+      logChecks(c, true);
+      if (!c.ok) { log.err(`bundle-check: ${c.failed.length} failure(s)`); process.exitCode = 1; } else log.ok('bundle-check: store bundle is self-contained');
       break;
     }
     case 'legal-dist': legalDist(args[0] ? path.resolve(args[0]) : undefined); break;

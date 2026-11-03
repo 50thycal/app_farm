@@ -44,6 +44,13 @@ In Claude Code: `/farm "an app that …"`.
 | store | CI/Mac | ASC: metadata, categories, age rating, review info, screenshots, previews | pushed |
 | submit | human | App Review submission | submitted |
 
+## Web games (`app.kind: "web-game"`)
+A finished, self-contained offline web game in its own repo can ship as a Capacitor app — the one documented
+exception to "native, not a website" (AGENTS.md rule 4), gated by its own preflight checks. The farm checks the game
+out, runs its test suites, captures landscape screenshots from the real store build, and
+`.github/workflows/farm-capacitor-release.yml` archives, signs and uploads it from a macOS runner. Example:
+`apps/straitwatch/` (game: `50thycal/td_cargo_ship`). See docs/RUNBOOK.md → Web games.
+
 ## Example
 `apps/sprout/` is a complete sample run (houseplant watering tracker) through every cloud stage, including its
 screenshots (`apps/sprout/store/screenshots/iphone-6.9/`), preview video and preflight report.

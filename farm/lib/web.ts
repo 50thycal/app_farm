@@ -5,13 +5,15 @@
 import { createServer, type Server } from 'node:http';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { chromium, type Browser, type BrowserContext, type Page, type Locator } from 'playwright-core';
-import { chromiumPath, run, log } from './util.ts';
+import { appPaths, chromiumPath, run, log } from './util.ts';
 import type { Step, Target } from '../schemas/index.ts';
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ttf': 'font/ttf', '.woff2': 'font/woff2', '.ico': 'image/x-icon',
+  '.mjs': 'application/javascript', '.webp': 'image/webp', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.m4a': 'audio/mp4', '.woff': 'font/woff', '.webm': 'video/webm', '.mp4': 'video/mp4',
 };
 
 export async function exportWeb(appDir: string) {
@@ -21,11 +23,14 @@ export async function exportWeb(appDir: string) {
   return path.join(appDir, 'dist-web');
 }
 
-/** Static server mimicking Vercel/expo-router static hosting: /foo → foo.html → foo/index.html → +not-found.html */
-export function serveStatic(dir: string): Promise<{ url: string; close: () => Promise<void> }> {
+/**
+ * Static server mimicking Vercel/expo-router static hosting: /foo → foo.html → foo/index.html → +not-found.html.
+ * `index` serves another file at `/` (a web game whose entry page is not index.html).
+ */
+export function serveStatic(dir: string, o: { index?: string } = {}): Promise<{ url: string; close: () => Promise<void> }> {
   const server: Server = createServer((req, res) => {
     const urlPath = decodeURIComponent((req.url ?? '/').split('?')[0]);
-    const candidates = [urlPath, `${urlPath}.html`, path.join(urlPath, 'index.html')];
+    const candidates = [...(o.index && urlPath === '/' ? [`/${o.index}`] : []), urlPath, `${urlPath}.html`, path.join(urlPath, 'index.html')];
     for (const c of candidates) {
       const f = path.join(dir, c);
       if (f.startsWith(dir) && existsSync(f) && statSync(f).isFile()) {
@@ -79,9 +84,24 @@ export async function phoneContext(browser: Browser, baseUrl: string, o: PhoneOp
 
 export function locate(page: Page, t: Target): Locator {
   if ('id' in t) return page.locator(`[data-testid="${t.id}"]`).filter({ visible: true }).first();
+  if ('css' in t) return page.locator(t.css).filter({ visible: true }).first();
   return page.getByText(t.text, { exact: false }).filter({ visible: true }).first();
 }
-export function describeTarget(t: Target) { return 'id' in t ? `#${t.id}` : `"${t.text}"`; }
+export function describeTarget(t: Target) { return 'id' in t ? `#${t.id}` : 'css' in t ? `css(${t.css})` : `"${t.text}"`; }
+
+/**
+ * Per-app capture hooks (`apps/<slug>/store/capture.mjs`, `export const hooks = { name: async (page, step) => {} }`)
+ * for web-only steps the DSL can't express, e.g. aiming taps at a game's live threats. Hooks only drive the
+ * real UI; they run in web captures (playtest journeys, screenshots, preview), never in native QA.
+ */
+export type StepHook = (page: Page, step: { hook: string; ms?: number; args?: unknown }) => Promise<void>;
+export type StepHooks = Record<string, StepHook>;
+export async function loadHooks(slug: string): Promise<StepHooks | undefined> {
+  const f = path.join(appPaths(slug).store, 'capture.mjs');
+  if (!existsSync(f)) return undefined;
+  const mod = await import(pathToFileURL(f).href);
+  return (mod.hooks ?? mod.default) as StepHooks;
+}
 
 export async function waitForApp(page: Page) {
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
@@ -95,6 +115,7 @@ export interface StepRunOpts {
   timeoutMs?: number;
   onScreenshot?: (name: string, page: Page) => Promise<void>;
   smooth?: boolean;
+  hooks?: StepHooks;
 }
 
 /** Execute DSL steps. Throws with a readable message on the first failing step. */
@@ -125,6 +146,7 @@ export async function runSteps(page: Page, baseUrl: string, steps: Step[], o: St
         await page.waitForTimeout(300);
         const n = await ('id' in s.expectNot
           ? page.locator(`[data-testid="${s.expectNot.id}"]`).filter({ visible: true }).count()
+          : 'css' in s.expectNot ? page.locator(s.expectNot.css).filter({ visible: true }).count()
           : page.getByText(s.expectNot.text).filter({ visible: true }).count());
         if (n > 0) throw new Error(`${describeTarget(s.expectNot)} is still visible`);
       } else if ('back' in s) {
@@ -140,8 +162,16 @@ export async function runSteps(page: Page, baseUrl: string, steps: Step[], o: St
         else await page.mouse.wheel(0, dy);
       } else if ('screenshot' in s) {
         await o.onScreenshot?.(s.screenshot, page);
+      } else if ('tapAt' in s) {
+        const vp = page.viewportSize() ?? { width: 390, height: 844 };
+        await page.mouse.click(vp.width * s.tapAt[0], vp.height * s.tapAt[1]);
+      } else if ('hook' in s) {
+        const fn = o.hooks?.[s.hook];
+        if (!fn) throw new Error(`no capture hook "${s.hook}" (define it in store/capture.mjs)`);
+        await fn(page, s);
       }
-      if (!('wait' in s)) await page.waitForTimeout(o.stepDelayMs ?? 250);
+      // Hooks manage their own timing (a capture right after one must catch the moment it set up).
+      if (!('wait' in s) && !('hook' in s)) await page.waitForTimeout(o.stepDelayMs ?? 250);
     } catch (e) {
       throw new Error(`${where}: ${(e as Error).message.split('\n')[0]}`);
     }

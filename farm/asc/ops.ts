@@ -13,7 +13,8 @@ import path from 'node:path';
 import { Asc } from './client.ts';
 import { appPaths, log } from '../lib/util.ts';
 import { loadConfig, loadPipeline, savePipeline, validateFile } from '../lib/state.ts';
-import { DEVICES, type DeviceId } from '../lib/apple.ts';
+import sharp from 'sharp';
+import { DEVICES, deviceSpec, type DeviceId } from '../lib/apple.ts';
 
 const EDITABLE = ['PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED', 'METADATA_REJECTED', 'INVALID_BINARY'];
 
@@ -142,6 +143,13 @@ export async function pushListing(slug: string, opts: { skipMedia?: boolean } = 
     if (!existsSync(dir)) continue;
     const files = readdirSync(dir).filter((f) => f.endsWith('.png')).sort();
     if (!files.length) continue;
+    // Refuse before deleting the live set: every file must be an accepted size for the app's orientation.
+    const accepted = deviceSpec(dev, spec.app.orientation).accepted;
+    for (const f of files) {
+      const m = await sharp(path.join(dir, f)).metadata();
+      if (!accepted.some(([w, h]) => m.width === w && m.height === h))
+        throw new Error(`${dev}/${f} is ${m.width}×${m.height}; ${spec.app.orientation} ${dev} accepts ${accepted.map((a) => a.join('×')).join(', ')} — re-run assets`);
+    }
     const displayType = DEVICES[dev].displayType;
     const sets = (await asc.get(`/v1/appStoreVersionLocalizations/${locId}/appScreenshotSets`)).data as any[];
     let set = sets.find((s) => s.attributes.screenshotDisplayType === displayType);

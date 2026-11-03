@@ -16,3 +16,4 @@ apps/*/store/raw/web/
 apps/*/store/fastlane/screenshots/
 apps/*/store/raw/native/preview.mov
 apps/*/store/fastlane/metadata/review_information/
+apps/*/source/

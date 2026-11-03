@@ -158,9 +158,16 @@ export async function captureWebRaw(slug: string, shots: Shots, devices: DeviceI
         await seedStorage(ctx, scene.seed);
         const page = await ctx.newPage();
         try {
-          await runSteps(page, baseUrl, scene.steps, { demo: scene.demo, stepDelayMs: 400, hooks });
-          await page.waitForTimeout(700);
-          await page.screenshot({ path: path.join(dir, `${scene.id}.png`) });
+          // A {screenshot} step captures at that exact moment (e.g. mid-burst in a game); otherwise after the steps.
+          let shot = false;
+          await runSteps(page, baseUrl, scene.steps, {
+            demo: scene.demo, stepDelayMs: 400, hooks,
+            onScreenshot: async (_name, p) => { if (!shot) { await p.screenshot({ path: path.join(dir, `${scene.id}.png`) }); shot = true; } },
+          });
+          if (!shot) {
+            await page.waitForTimeout(700);
+            await page.screenshot({ path: path.join(dir, `${scene.id}.png`) });
+          }
           log.ok(`raw ${dev}/${scene.id}`);
         } catch (e) {
           throw new Error(`scene "${scene.id}" (${dev}) failed: ${(e as Error).message}`);

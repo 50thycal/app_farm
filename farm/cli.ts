@@ -285,7 +285,7 @@ async function main() {
       const { legalUrls } = await import('./stages/scaffold.ts');
       const b = await storeBundle(slug, spec.data, { skipBuild: opts.skipBuild });
       const u = legalUrls(loadConfig(), slug);
-      const c = scanBundle(b.dir, { allowUrls: [u.privacyUrl, u.termsUrl, u.supportUrl, u.marketingUrl], forbid: sourceOf(spec.data).forbid });
+      const c = scanBundle(b.dir, { allowUrls: [u.privacyUrl, u.termsUrl, u.supportUrl, u.marketingUrl], forbid: sourceOf(spec.data).forbid, declared: sourceOf(spec.data).allowUrls });
       c.expect(b.report.storeFlavor && !b.report.usedFallback, 'bundle.store-flavor', `${b.entry} is the store flavour (${b.report.sha?.slice(0, 10)})`, `${b.entry} is not the store flavour (${b.report.buildCmd})`);
       logChecks(c, true);
       if (!c.ok) { log.err(`bundle-check: ${c.failed.length} failure(s)`); process.exitCode = 1; } else log.ok('bundle-check: store bundle is self-contained');

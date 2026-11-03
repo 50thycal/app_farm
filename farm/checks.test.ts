@@ -96,6 +96,10 @@ test('bundle scan: namespaces, legal comments and own links pass; remote hosts, 
   writeFileSync(path.join(dir, 'bad.js'), 'fetch("/api/playlog",{method:"POST"});const u="https://cdn.example.net/x.js";new WebSocket(u);b("Download log")');
   const ids = scanBundle(dir, { allowUrls: [own], forbid: ['Download log'] }).failed.map((f) => f.id);
   assert.deepEqual(ids.sort(), ['bundle.api', 'bundle.channels', 'bundle.forbid.download-log', 'bundle.remote-urls']);
+  writeFileSync(path.join(dir, 'bad.js'), 'throw new Error("see https://capacitorjs.com/");fetch("https://api.example.net/x")');
+  const d = scanBundle(dir, { allowUrls: [own], declared: [{ url: 'https://capacitorjs.com/', why: 'error message text in @capacitor/core' }] });
+  assert.deepEqual(d.failed.map((f) => f.id).sort(), ['bundle.fetch-remote', 'bundle.remote-urls']);
+  assert.ok(d.list.some((x) => x.id === 'bundle.declared-url' && x.level === 'pass'));
 });
 
 test('plist + pbxproj readers', () => {

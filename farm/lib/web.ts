@@ -170,7 +170,8 @@ export async function runSteps(page: Page, baseUrl: string, steps: Step[], o: St
         if (!fn) throw new Error(`no capture hook "${s.hook}" (define it in store/capture.mjs)`);
         await fn(page, s);
       }
-      if (!('wait' in s)) await page.waitForTimeout(o.stepDelayMs ?? 250);
+      // Hooks manage their own timing (a capture right after one must catch the moment it set up).
+      if (!('wait' in s) && !('hook' in s)) await page.waitForTimeout(o.stepDelayMs ?? 250);
     } catch (e) {
       throw new Error(`${where}: ${(e as Error).message.split('\n')[0]}`);
     }

@@ -91,6 +91,11 @@ export const WebGameSource = z.object({
     cmd: z.string().describe('Long-running server command, e.g. npx vite preview --port 4173 --strictPort'),
     url: z.url(),
   }).optional(),
+  /**
+   * Exact URL strings allowed in the store bundle besides XML namespaces and the app's own legal pages, each with
+   * the reason it is not a remote load (e.g. a library's error-message link). Reviewed like a gate change.
+   */
+  allowUrls: z.array(z.object({ url: z.url(), why: z.string().min(10) })).default([]),
   /** Strings that must not appear in the store bundle (playtest/dev tooling, upload endpoints). */
   forbid: z.array(z.string()).default([]),
   /** Capacitor iOS project inside the repo. */

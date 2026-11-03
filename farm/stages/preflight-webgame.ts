@@ -50,7 +50,7 @@ export async function webGamePreflight(slug: string, S: Spec, cfg: FarmConfig): 
     c.expect(rep.storeFlavor, 'webgame.store-flavor', `${rep.entry} is the store flavour`,
       `${rep.entry} lacks <meta name="app-flavor" content="store"> — the store build must drop playtest notes, log upload and developer tools`, '2.3.1 / 5.1.2');
     const urls = legalUrls(cfg, slug);
-    c.merge(scanBundle(P.storeWeb, { allowUrls: [urls.privacyUrl, urls.termsUrl, urls.supportUrl, urls.marketingUrl], forbid: src.forbid }));
+    c.merge(scanBundle(P.storeWeb, { allowUrls: [urls.privacyUrl, urls.termsUrl, urls.supportUrl, urls.marketingUrl], forbid: src.forbid, declared: src.allowUrls }));
 
     const code = walk(P.storeWeb, (f) => /\.(m?js|html?)$/i.test(f)).map((f) => readFileSync(f, 'utf8')).join('\n');
     const hard = code.match(/FARM_PLACEHOLDER|lorem ipsum|dolor sit amet/i);

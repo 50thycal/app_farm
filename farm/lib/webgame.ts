@@ -152,9 +152,11 @@ export function stripLegalComments(code: string) {
  * network channels, nothing from the playtest tooling. `allowUrls` = exact URLs that may appear as links
  * (the app's own privacy/terms/support pages, opened outside the app).
  */
-export function scanBundle(dir: string, o: { allowUrls?: string[]; forbid?: string[] } = {}): Checks {
+export function scanBundle(dir: string, o: { allowUrls?: string[]; forbid?: string[]; declared?: { url: string; why: string }[] } = {}): Checks {
   const c = new Checks();
-  const allow = new Set(o.allowUrls ?? []);
+  const declared = new Map((o.declared ?? []).map((d) => [d.url, d.why]));
+  const allow = new Set([...(o.allowUrls ?? []), ...declared.keys()]);
+  const absFetch: string[] = [];
   const files = walk(dir, (f) => /\.(m?js|css|html?|json|svg|webmanifest|txt|xml)$/i.test(f), ['node_modules', '.git']);
   const code = files.filter((f) => /\.(m?js|css|html?|svg)$/i.test(f));
   const data = files.filter((f) => !code.includes(f));
@@ -175,6 +177,7 @@ export function scanBundle(dir: string, o: { allowUrls?: string[]; forbid?: stri
       else remote.push(`${rel(f)}: ${u.slice(0, 120)}`);
     }
     for (const m of text.matchAll(/["'`](\/api\/[\w./-]*)/g)) endpoints.push(`${rel(f)}: ${m[1]}`);
+    for (const m of text.matchAll(/\bfetch\s*\(\s*["'`]((?:https?:)?\/\/[^"'`]{0,80})/g)) absFetch.push(`${rel(f)}: ${m[1]}`);
     for (const m of text.matchAll(/\bnew\s+(WebSocket|EventSource)\s*\(|navigator\.sendBeacon\s*\(/g)) channels.push(`${rel(f)}: ${m[0]}`);
     xhr += (text.match(/\bXMLHttpRequest\b/g) ?? []).length;
     fetches += (text.match(/\bfetch\s*\(/g) ?? []).length;
@@ -182,7 +185,10 @@ export function scanBundle(dir: string, o: { allowUrls?: string[]; forbid?: stri
   c.expect(remote.length === 0, 'bundle.remote-urls', `No remote URLs in code/markup (${files.length} files scanned)`,
     `Remote URLs in the store bundle (a store build must load nothing remote): ${[...new Set(remote)].slice(0, 6).join(' · ')}`, '4.2 / 2.5.2');
   if (namespaces.size) c.pass('bundle.namespaces', `Allowed: XML namespace identifiers (${[...namespaces].join(', ')})`);
-  if (links.size) c.pass('bundle.own-links', `Allowed: the app's own legal pages as links (${[...links].join(', ')})`, '5.1.1(i)');
+  const own = [...links].filter((u) => !declared.has(u));
+  if (own.length) c.pass('bundle.own-links', `Allowed: the app's own legal pages as links (${own.join(', ')})`, '5.1.1(i)');
+  for (const u of [...links].filter((x) => declared.has(x))) c.pass('bundle.declared-url', `Allowed by spec.source.allowUrls: ${u} — ${declared.get(u)}`);
+  c.expect(absFetch.length === 0, 'bundle.fetch-remote', 'No fetch() of an absolute URL', `fetch() of an absolute URL: ${absFetch.slice(0, 4).join(' · ')}`, '4.2 / 2.5.2');
   c.expect(endpoints.length === 0, 'bundle.api', 'No backend endpoints (/api/…)', `Backend endpoints in the store bundle: ${[...new Set(endpoints)].slice(0, 5).join(' · ')}`, '5.1.2');
   c.expect(channels.length === 0, 'bundle.channels', 'No WebSocket / EventSource / sendBeacon', `Network channels in the store bundle: ${channels.slice(0, 5).join(' · ')}`, '5.1.2');
   if (xhr) c.warn('bundle.xhr', `XMLHttpRequest referenced ${xhr}× — confirm it only loads bundled files`);

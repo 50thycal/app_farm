@@ -90,7 +90,7 @@ ${spec.monetization.restorePurchases ? '<h3>How do I restore purchases?</h3><p>O
 
 export function indexHtml(spec: Spec, listing?: Listing, shots: string[] = []) {
   const body = `<div class="hero"><img src="icon.png" alt=""><div><h1>${esc(spec.app.name)}</h1><p class="muted" style="margin:0">${esc(listing?.subtitle ?? spec.app.subtitle)}</p></div></div>
-${shots.length ? `<div class="shots">${shots.map((s) => `<img src="${s}" alt="">`).join('')}</div>` : ''}
+${shots.length ? `${spec.app.orientation === 'landscape' ? '<style>.shots img{height:240px}</style>' : ''}<div class="shots">${shots.map((s) => `<img src="${s}" alt="">`).join('')}</div>` : ''}
 ${(listing?.description ?? spec.pitch.oneLiner).split(/\n{2,}/).map((para) => `<p>${esc(para).replace(/\n/g, '<br>')}</p>`).join('')}`;
   return page(spec.app.name, spec, body);
 }

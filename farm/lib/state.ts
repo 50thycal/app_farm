@@ -36,6 +36,16 @@ export function setStage(slug: string, stage: string, status: StageStatus, note?
   savePipeline(pl);
 }
 
+export function readJsonIfSafe(file: string): any {
+  try { return readJsonIf(file); } catch { return undefined; }
+}
+
+/** journeys file: app/e2e/journeys.json for Expo apps, e2e/journeys.json (store-bundle smoke flows) for web games. */
+export function journeysFile(slug: string): string {
+  const P = appPaths(slug);
+  return readJsonIf(P.spec)?.app?.kind === 'web-game' ? P.webJourneys : P.journeys;
+}
+
 export const CONFIG_PATH = path.join(ROOT, 'farm.config.json');
 export function loadConfig(): FarmConfig {
   const raw = readJsonIf(CONFIG_PATH) ?? {};

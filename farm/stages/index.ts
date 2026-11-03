@@ -5,7 +5,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { appPaths, log, run, walk } from '../lib/util.ts';
-import { Checks, loadPipeline, validateFile } from '../lib/state.ts';
+import { Checks, journeysFile, loadPipeline, validateFile } from '../lib/state.ts';
+import { buildStore, readSourceReport, sourceOf, sourcePackage, sourceState } from '../lib/webgame.ts';
 import { specPolicyChecks } from './policy.ts';
 import { scaffold } from './scaffold.ts';
 import { playtest } from './playtest.ts';
@@ -62,6 +63,8 @@ export const STAGES: Stage[] = [
     gate: async (slug) => {
       const P = appPaths(slug);
       const c = new Checks();
+      const spec = validateFile('spec', P.spec);
+      if (spec.ok && spec.data.app.kind === 'web-game') return webGameScaffoldGate(slug);
       c.expect(existsSync(path.join(P.app, 'node_modules')), 'scaffold.deps', 'dependencies installed', 'run npm install in app/');
       c.expect(existsSync(P.appJson) && existsSync(P.easJson), 'scaffold.config', 'app.json + eas.json', 'config missing');
       return c;
@@ -71,9 +74,10 @@ export const STAGES: Stage[] = [
     id: 'build', title: 'Build the app (features, demo data, journeys)', owner: 'agent', where: ['cloud', 'mac'], playbook: '03-build.md',
     gate: async (slug, o) => {
       const P = appPaths(slug);
-      const c = await schemaGate('journeys', (s) => appPaths(s).journeys)(slug);
+      const c = await schemaGate('journeys', journeysFile)(slug);
       const spec = validateFile('spec', P.spec);
       if (!spec.ok) return c.fail('spec', 'spec invalid');
+      if (spec.data.app.kind === 'web-game') return c.merge(await webGameBuildGate(slug, o));
       for (const s of spec.data.screens) c.expect(existsSync(path.join(P.app, s.file)), `screen.${s.id}`, `${s.file}`, `missing app/${s.file} for screen ${s.id}`);
       const src = walk(P.app, (f) => /\.(tsx?)$/.test(f)).map((f) => readFileSync(f, 'utf8')).join('\n');
       c.expect(!src.includes('FARM_PLACEHOLDER'), 'build.placeholder', 'starter placeholder replaced', 'FARM_PLACEHOLDER still present (replace the starter home screen)');
@@ -91,7 +95,7 @@ export const STAGES: Stage[] = [
   },
   {
     id: 'playtest', title: 'Automated playtest (journeys + crawler)', owner: 'script', where: ['cloud', 'mac'], playbook: '04-playtest-fix.md',
-    run: (slug, o) => playtest(slug, { skipBuild: o.skipBuild }),
+    run: (slug, o) => playtest(slug, { skipBuild: o.skipBuild, fast: o.fast }),
     gate: async (slug) => {
       const c = new Checks();
       const f = path.join(appPaths(slug).reports, 'playtest.json');
@@ -133,6 +137,12 @@ export const STAGES: Stage[] = [
       c.expect(existsSync(P.iconPng), 'assets.icon', 'icon-1024.png', 'icon missing');
       c.expect(existsSync(path.join(P.screenshots, 'iphone-6.9')), 'assets.shots', 'screenshots rendered', 'screenshots missing');
       c.expect(existsSync(path.join(P.previews, 'iphone-6.9', 'preview.mp4')), 'assets.preview', 'preview rendered', 'preview missing', undefined, 'warn');
+      const spec = validateFile('spec', P.spec);
+      if (spec.ok && spec.data.app.kind === 'web-game') {
+        const src = readSourceReport(slug);
+        c.expect(!!src?.storeFlavor, 'assets.store-flavor', `captured from the store flavour (${src?.sha?.slice(0, 10)})`,
+          'Screenshots were captured from a non-store build (fallback) — re-run assets once the store flavour exists', '2.3.3', 'warn');
+      }
       return c;
     },
   },
@@ -188,6 +198,48 @@ export const STAGES: Stage[] = [
     },
   },
 ];
+
+// ---------------------------------------------------------------- web-game gates
+async function webGameScaffoldGate(slug: string) {
+  const P = appPaths(slug);
+  const c = new Checks();
+  const spec = validateFile('spec', P.spec);
+  if (!spec.ok) return c.fail('spec', 'spec invalid');
+  const src = sourceOf(spec.data);
+  const st = await sourceState(slug);
+  c.expect(st.exists && existsSync(path.join(P.source, 'package.json')), 'scaffold.source', `${src.value}@${src.ref} checked out (${st.sha?.slice(0, 10)})`,
+    `no checkout of ${src.value} — run: npm run farm -- run ${slug} scaffold`);
+  c.expect(existsSync(path.join(P.source, 'node_modules')), 'scaffold.deps', 'game dependencies installed', `run ${src.installCmd} in apps/${slug}/source`);
+  if (st.dirty) c.warn('scaffold.dirty', 'apps/<slug>/source has local changes — game changes belong in the game repo (PR there), not here');
+  const cap = ['capacitor.config.ts', 'capacitor.config.json', 'capacitor.config.js'].some((f) => existsSync(path.join(P.source, f)));
+  c.expect(cap, 'scaffold.capacitor', 'Capacitor config present', `no capacitor.config.* in ${src.value}@${src.ref} yet — the iOS shell is built in the game repo`, undefined, 'warn');
+  return c;
+}
+
+async function webGameBuildGate(slug: string, o: RunOpts) {
+  const P = appPaths(slug);
+  const c = new Checks();
+  const spec = validateFile('spec', P.spec);
+  if (!spec.ok) return c.fail('spec', 'spec invalid');
+  const src = sourceOf(spec.data);
+  if (!existsSync(path.join(P.source, 'package.json'))) return c.fail('build.source', `no game checkout — run: npm run farm -- run ${slug} scaffold`);
+  for (const s of spec.data.screens) c.expect(existsSync(path.join(P.source, s.file)), `screen.${s.id}`, s.file, `screen ${s.id}: ${s.file} not found in ${src.value}@${src.ref}`);
+  const j = validateFile('journeys', P.webJourneys);
+  if (j.ok) c.expect(j.data.journeys.length >= spec.data.journeys.length, 'build.journeys', `${j.data.journeys.length} journeys`,
+    `spec lists ${spec.data.journeys.length} journeys but e2e/journeys.json has ${j.data.journeys.length}`);
+  const pkgVersion = sourcePackage(slug)?.version;
+  c.expect(pkgVersion === spec.data.app.version, 'build.version', `game version ${pkgVersion}`,
+    `game package.json version ${pkgVersion} ≠ spec app.version ${spec.data.app.version} (it becomes MARKETING_VERSION)`, undefined, 'warn');
+  if (!o.fast) {
+    try {
+      const b = await buildStore(slug, spec.data);
+      c.pass('build.store-bundle', `${b.report.buildCmd} → ${b.entry}`);
+      c.expect(b.report.storeFlavor, 'build.store-flavor', 'store flavour marker present',
+        `${b.entry} lacks <meta name="app-flavor" content="store">${b.report.usedFallback ? ' (fallback build: the store flavour is not in this ref yet)' : ''}`, undefined, 'warn');
+    } catch (e) { c.fail('build.store-bundle', (e as Error).message.slice(0, 1500)); }
+  }
+  return c;
+}
 
 export const stageById = (id: string) => {
   const s = STAGES.find((x) => x.id === id);

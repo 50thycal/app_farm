@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
 import { appPaths, PLAYBOOKS_DIR, ROOT, run, which } from './util.ts';
-import { loadPipeline, type Checks } from './state.ts';
+import { journeysFile, loadPipeline, readJsonIfSafe, type Checks } from './state.ts';
 import { schemas } from '../schemas/index.ts';
 import type { Stage } from '../stages/index.ts';
 
@@ -21,10 +21,14 @@ export function renderPrompt(slug: string, stage: Stage, failures?: Checks): str
   const pl = loadPipeline(slug);
   const vars: Record<string, string> = {
     slug, appDir: rel(P.dir), app: rel(P.app), idea: rel(P.idea), brief: rel(P.brief), spec: rel(P.spec), specMd: rel(P.specMd),
-    journeys: rel(P.journeys), listing: rel(P.listing), shots: rel(P.shots), iconSvg: rel(P.iconSvg), reports: rel(P.reports),
+    journeys: rel(journeysFile(slug)), source: rel(P.source), listing: rel(P.listing), shots: rel(P.shots), iconSvg: rel(P.iconSvg), reports: rel(P.reports),
     sourceType: pl.source.type, sourceValue: pl.source.value,
   };
-  const pb = stage.playbook ? readFileSync(path.join(PLAYBOOKS_DIR, stage.playbook), 'utf8') : `Complete stage "${stage.id}": ${stage.title}.`;
+  // A web game gets the variant playbook (e.g. 03-build.web-game.md) when one exists.
+  const kind = readJsonIfSafe(P.spec)?.app?.kind;
+  const variant = stage.playbook && kind === 'web-game' ? stage.playbook.replace(/\.md$/, '.web-game.md') : undefined;
+  const pbFile = variant && existsSync(path.join(PLAYBOOKS_DIR, variant)) ? variant : stage.playbook;
+  const pb = pbFile ? readFileSync(path.join(PLAYBOOKS_DIR, pbFile), 'utf8') : `Complete stage "${stage.id}": ${stage.title}.`;
   const body = pb.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `{{${k}}}`);
   const parts = [
     `# app_farm — stage \`${stage.id}\` for app \`${slug}\``,

@@ -60,8 +60,52 @@ export type Brief = z.infer<typeof Brief>;
 // ---------------------------------------------------------------------------
 // Stage 2 — spec
 // ---------------------------------------------------------------------------
+/**
+ * Where a `web-game` comes from: a self-contained, offline web game in its own repo, shipped in a native shell
+ * (Capacitor) whose iOS project is committed in that repo. The farm checks it out to apps/<slug>/source, builds
+ * the store flavour, runs the game's own test suites, captures from the real game and preflights the bundle.
+ */
+export const WebGameSource = z.object({
+  type: z.literal('repo'),
+  value: z.string().regex(/^[\w.-]+\/[\w.-]+$/).describe('GitHub owner/repo (public repos need no token)'),
+  ref: z.string().min(1).describe('Branch, tag or commit to build'),
+  installCmd: z.string().default('npm ci'),
+  buildCmd: z.string().default('npm run build:store').describe('Builds the store flavour into webDir'),
+  webDir: z.string().default('dist'),
+  entry: z.string().default('index.html').describe('Entry page inside webDir'),
+  /**
+   * Used ONLY when buildCmd names an npm script the repo does not have yet (e.g. before the store flavour
+   * lands), so captures and playtests can still run. Preflight still requires the store-flavour marker.
+   */
+  fallback: z.object({ buildCmd: z.string(), entry: z.string() }).optional(),
+  /** The game's own test suites, run by the playtest stage. `server: true` = needs previewServer running. */
+  tests: z.array(z.object({
+    id: z.string().regex(/^[a-z0-9-]+$/),
+    cmd: z.string(),
+    server: z.boolean().default(false),
+    critical: z.boolean().default(true),
+    timeoutSec: z.number().int().min(10).max(3600).default(900),
+  })).default([]),
+  previewServer: z.object({
+    buildCmd: z.string().describe('Build the suites run against (often the default, non-store build)'),
+    cmd: z.string().describe('Long-running server command, e.g. npx vite preview --port 4173 --strictPort'),
+    url: z.url(),
+  }).optional(),
+  /** Strings that must not appear in the store bundle (playtest/dev tooling, upload endpoints). */
+  forbid: z.array(z.string()).default([]),
+  /** Capacitor iOS project inside the repo. */
+  ios: z.object({
+    project: z.string().default('ios/App/App.xcodeproj'),
+    scheme: z.string().default('App'),
+    appDir: z.string().default('ios/App/App').describe('Holds Info.plist, PrivacyInfo.xcprivacy, Assets.xcassets'),
+  }).default({ project: 'ios/App/App.xcodeproj', scheme: 'App', appDir: 'ios/App/App' }),
+});
+export type WebGameSource = z.infer<typeof WebGameSource>;
+
 export const Spec = z.object({
   app: z.object({
+    kind: z.enum(['expo', 'web-game']).default('expo').describe('expo = native Expo/React Native app (default). web-game = self-contained offline web game in a Capacitor shell (AGENTS.md rule 4 exception)'),
+    gameCenter: z.boolean().default(false).describe('Uses Game Center (leaderboards/achievements)'),
     name: z.string().min(2).max(30),
     subtitle: z.string().max(30),
     slug: z.string().regex(/^[a-z0-9-]+$/),
@@ -86,7 +130,7 @@ export const Spec = z.object({
   screens: z.array(z.object({
     id: z.string(),
     route: z.string().startsWith('/'),
-    file: z.string().describe('Expo Router file relative to app/, e.g. app/(tabs)/index.tsx'),
+    file: z.string().describe('Expo Router file relative to app/, e.g. app/(tabs)/index.tsx (web-game: source file relative to the game repo)'),
     title: z.string(),
     purpose: z.string(),
     features: z.array(z.string()).default([]),
@@ -136,6 +180,10 @@ export const Spec = z.object({
     tone: z.string(),
   }),
   nativeValue: z.array(z.string()).min(2).describe('Guideline 4.2: concrete reasons this is more than a repackaged website (native features, offline, widgets, haptics, notifications, etc.)'),
+  source: WebGameSource.optional().describe('web-game only: the game repo'),
+}).superRefine((s, ctx) => {
+  if (s.app.kind === 'web-game' && !s.source) ctx.addIssue({ code: 'custom', path: ['source'], message: 'app.kind "web-game" needs source {type:"repo", value, ref, ...}' });
+  if (s.app.kind !== 'web-game' && s.source) ctx.addIssue({ code: 'custom', path: ['source'], message: 'source is only used by app.kind "web-game"' });
 });
 export type Spec = z.infer<typeof Spec>;
 
@@ -146,6 +194,7 @@ export type Spec = z.infer<typeof Spec>;
 export const Target = z.union([
   z.strictObject({ id: z.string() }).describe('testID on the RN element'),
   z.strictObject({ text: z.string() }).describe('Visible text (exact substring)'),
+  z.strictObject({ css: z.string() }).describe('CSS selector (web-game only; not compiled to Maestro)'),
 ]);
 export type Target = z.infer<typeof Target>;
 export const Step = z.union([
@@ -158,6 +207,9 @@ export const Step = z.union([
   z.strictObject({ wait: z.number().int().min(0).max(10000) }),
   z.strictObject({ scroll: z.enum(['up', 'down']) }),
   z.strictObject({ screenshot: z.string() }),
+  z.strictObject({ tapAt: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]) }).describe('Tap at a viewport fraction [x, y] (web only)'),
+  z.strictObject({ hook: z.string(), ms: z.number().int().min(0).max(180000).optional(), args: z.unknown().optional() })
+    .describe('Run a named hook from store/capture.mjs (web captures only, e.g. play a game for ms)'),
 ]);
 export type Step = z.infer<typeof Step>;
 
@@ -167,6 +219,7 @@ export const Journeys = z.object({
     title: z.string(),
     critical: z.boolean().default(true),
     demo: z.boolean().default(true).describe('Start with ?farmDemo=1 (seeded demo data)'),
+    seed: z.record(z.string(), z.unknown()).optional().describe('web: localStorage items set before the first load (e.g. a demo save)'),
     steps: z.array(Step).min(2),
   })).min(2),
 });
@@ -178,9 +231,11 @@ export const Shots = z.object({
     caption: z.string().min(3).max(40),
     subcaption: z.string().max(60).optional(),
     demo: z.boolean().default(true),
+    seed: z.record(z.string(), z.unknown()).optional().describe('web: localStorage items set before the first load (e.g. a demo save)'),
     steps: z.array(Step).min(1),
   })).min(3).max(10),
   preview: z.object({
+    seed: z.record(z.string(), z.unknown()).optional(),
     steps: z.array(Step).min(4),
     stepDelayMs: z.number().int().min(300).max(5000).default(1400),
   }),

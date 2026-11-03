@@ -6,8 +6,8 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { appPaths, log, newestMtime, readJson, readJsonIf, run, walk, which, writeJson, writeText } from '../lib/util.ts';
-import { Checks, loadConfig, loadPipeline, validateFile } from '../lib/state.ts';
-import { DEVICES, PLACEHOLDER_RE, PREVIEW, SCREENSHOTS, type DeviceId } from '../lib/apple.ts';
+import { Checks, journeysFile, loadConfig, loadPipeline, validateFile } from '../lib/state.ts';
+import { PLACEHOLDER_RE, PREVIEW, SCREENSHOTS, deviceSpec, devicesFor, type DeviceId } from '../lib/apple.ts';
 import { specPolicyChecks } from './policy.ts';
 import { listingChecks, appPrivacyJson } from './listing.ts';
 import { PERMISSION_PLIST } from './scaffold.ts';
@@ -44,7 +44,7 @@ export async function preflight(slug: string, opts: { fast?: boolean } = {}) {
   const spec = validateFile('spec', P.spec);
   const listing = validateFile('listing', P.listing);
   const shots = validateFile('shots', P.shots);
-  const journeys = validateFile('journeys', P.journeys);
+  const journeys = validateFile('journeys', journeysFile(slug));
   for (const [n, v] of [['spec', spec], ['listing', listing], ['shots', shots], ['journeys', journeys]] as const)
     c.expect(v.ok, `input.${n}`, `${n} valid`, v.ok ? '' : `${n} invalid: ${v.errors.slice(0, 5).join('; ')}`);
   if (!spec.ok) return finish(slug, c);
@@ -145,8 +145,10 @@ export async function preflight(slug: string, opts: { fast?: boolean } = {}) {
   if (listing.ok) c.merge(listingChecks(listing.data, S));
 
   // ------------------------------------------------------------ G. screenshots + preview
-  const devices: DeviceId[] = S.app.supportsTablet ? ['iphone-6.9', 'ipad-13'] : ['iphone-6.9'];
+  const devices: DeviceId[] = devicesFor(S);
+  const landscape = S.app.orientation === 'landscape';
   for (const dev of devices) {
+    const accepted = deviceSpec(dev, S.app.orientation).accepted;
     const dir = path.join(P.screenshots, dev);
     const files = existsSync(dir) ? readdirSync(dir).filter((f) => /\.(png|jpe?g)$/i.test(f)).sort() : [];
     c.expect(files.length >= SCREENSHOTS.min && files.length <= SCREENSHOTS.max, `shots.${dev}.count`, `${dev}: ${files.length} screenshots`,
@@ -154,8 +156,9 @@ export async function preflight(slug: string, opts: { fast?: boolean } = {}) {
     if (files.length && files.length < SCREENSHOTS.recommendedMin) c.warn(`shots.${dev}.few`, `Only ${files.length} screenshots — 3+ convert better`);
     for (const f of files) {
       const m = await sharp(path.join(dir, f)).metadata();
-      const okSize = DEVICES[dev].accepted.some(([w, h]) => (m.width === w && m.height === h) || (m.width === h && m.height === w));
-      c.expect(okSize, `shots.${dev}.${f}.size`, `${f} ${m.width}×${m.height}`, `${f} is ${m.width}×${m.height}; accepted: ${DEVICES[dev].accepted.map((a) => a.join('×')).join(', ')}`);
+      // Portrait apps keep the historical rule (either orientation of a portrait size); landscape apps need landscape sizes.
+      const okSize = accepted.some(([w, h]) => (m.width === w && m.height === h) || (!landscape && m.width === h && m.height === w));
+      c.expect(okSize, `shots.${dev}.${f}.size`, `${f} ${m.width}×${m.height}`, `${f} is ${m.width}×${m.height}; accepted${landscape ? ' (landscape)' : ''}: ${accepted.map((a) => a.join('×')).join(', ')}`);
       c.expect(!m.hasAlpha, `shots.${dev}.${f}.alpha`, `${f} opaque`, `${f} has alpha`);
     }
     const raw = existsSync(path.join(P.rawNative)) && readdirSync(P.rawNative).some((f) => f.endsWith('.png'));
@@ -170,7 +173,7 @@ export async function preflight(slug: string, opts: { fast?: boolean } = {}) {
     const a = info?.streams?.find((s: any) => s.codec_type === 'audio');
     const dur = Number(info?.format?.duration ?? 0);
     const [num, den] = String(v?.r_frame_rate ?? '0/1').split('/').map(Number);
-    const [pw, ph] = DEVICES['iphone-6.9'].preview;
+    const [pw, ph] = deviceSpec('iphone-6.9', S.app.orientation).preview;
     c.expect(dur >= PREVIEW.minSec && dur <= PREVIEW.maxSec, 'preview.duration', `preview ${dur.toFixed(1)}s`, `preview is ${dur.toFixed(1)}s (15–30s)`);
     c.expect(v?.width === pw && v?.height === ph, 'preview.size', `preview ${v?.width}×${v?.height}`, `preview ${v?.width}×${v?.height} (need ${pw}×${ph})`);
     c.expect(num / den <= 30.01, 'preview.fps', `preview ${(num / den).toFixed(0)} fps`, 'preview > 30 fps');

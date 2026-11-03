@@ -8,7 +8,10 @@ import type { Step, Target } from '../schemas/index.ts';
 
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const q = (s: string) => JSON.stringify(s);
-const sel = (t: Target) => ('id' in t ? `{ id: ${q(t.id)} }` : `{ text: ${q(`.*${esc(t.text)}.*`)} }`);
+const sel = (t: Target) => {
+  if ('css' in t) throw new Error(`css target ${t.css} is web-only and cannot run in Maestro`);
+  return 'id' in t ? `{ id: ${q(t.id)} }` : `{ text: ${q(`.*${esc(t.text)}.*`)} }`;
+};
 
 export function stepsToMaestro(steps: Step[], o: { appId: string; scheme: string; demo: boolean; name: string; shotsDir?: string }): string {
   const out: string[] = [`appId: ${o.appId}`, `name: ${q(o.name)}`, '---', '- clearState'];
@@ -27,6 +30,8 @@ export function stepsToMaestro(steps: Step[], o: { appId: string; scheme: string
     else if ('wait' in s) out.push(`- waitForAnimationToEnd:\n    timeout: ${s.wait}`);
     else if ('scroll' in s) out.push(s.scroll === 'down' ? '- scroll' : '- swipe:\n    direction: DOWN');
     else if ('screenshot' in s) out.push(`- takeScreenshot: ${q(path.join(o.shotsDir ?? '.', s.screenshot))}`);
+    else if ('tapAt' in s) out.push(`- tapOn:\n    point: "${Math.round(s.tapAt[0] * 100)}%,${Math.round(s.tapAt[1] * 100)}%"`);
+    else if ('hook' in s) throw new Error(`hook step "${s.hook}" is web-only and cannot run in Maestro`);
     if (!('wait' in s) && !('open' in s)) out.push('- waitForAnimationToEnd');
   }
   return out.join('\n') + '\n';

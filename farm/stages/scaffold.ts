@@ -2,6 +2,7 @@ import { cpSync, existsSync, rmSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { appPaths, log, readJson, run, TEMPLATES_DIR, writeJson, writeText } from '../lib/util.ts';
 import { loadConfig, validateFile } from '../lib/state.ts';
+import { checkoutSource, installSource } from '../lib/webgame.ts';
 import type { FarmConfig, Spec } from '../schemas/index.ts';
 
 /** Info.plist purpose-string keys required by each permission. */
@@ -143,6 +144,7 @@ export async function scaffold(slug: string, opts: { force?: boolean } = {}) {
   if (!v.ok) throw new Error(`spec.json invalid:\n  ${v.errors.join('\n  ')}`);
   const spec = v.data;
   const cfg = loadConfig();
+  if (spec.app.kind === 'web-game') return scaffoldWebGame(slug, spec, opts);
 
   if (existsSync(path.join(P.app, 'package.json')) && !opts.force) {
     log.warn('app/ already exists — re-rendering config only (use --force to recreate).');
@@ -198,4 +200,14 @@ export async function scaffold(slug: string, opts: { force?: boolean } = {}) {
     });
   }
   log.ok(`scaffolded ${path.relative(process.cwd(), P.app)}`);
+}
+
+/**
+ * web-game: nothing is generated. The game repo (spec.source) already holds the game and its Capacitor iOS
+ * project; scaffold checks it out at the ref into apps/<slug>/source and installs its dependencies.
+ */
+async function scaffoldWebGame(slug: string, spec: Spec, opts: { force?: boolean }) {
+  await checkoutSource(slug, spec, { force: opts.force });
+  await installSource(slug, spec);
+  log.ok(`game repo ready at apps/${slug}/source`);
 }
